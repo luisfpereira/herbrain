@@ -1,0 +1,162 @@
+server:
+  debug: true
+  use_reloader: false
+  host: "0.0.0.0"
+  port: "8050"
+
+app:
+  assets_folder: /home/luisfpereira/Repos/github/herbrain/project_pregnancy/assets
+
+style:
+  margin_side: 20px
+  text_fontsize: 24px
+  text_fontfamily: Avenir
+  title_fontsize: 40px
+  space_between_sections: 70px
+  space_between_title_and_content: 30px
+
+data:
+  mri:
+    _target_: dash_gi.data_loader.PipelineDataLoader
+    pipeline:
+      _target_: dash_gi.data_loader.Pipeline
+      steps:
+        - _target_: dash_gi.data_loader.FileFinder
+          data_dir: "/home/luisfpereira/data/pregnancy/folder1"
+        - _target_: dash_gi.data_loader.MapStep
+          step:
+            _target_: dash_gi.data_loader.FileFinder
+            rules:
+              - _target_: dash_gi.data_loader.FileRule
+                value: BrainNormalized
+              - _target_: dash_gi.data_loader.FileRule
+                value: .nii.gz
+                func: endswith
+            warn: false
+        - _target_: dash_gi.data_loader.Sorter
+        - _target_: dash_gi.data_loader.Truncater
+          value: 2
+        - _target_: dash_gi.data_loader.MapStep
+          pbar: true
+          step:
+            _target_: dash_gi.data_loader.MriImageLoader
+  hormones:
+    _target_: dash_gi.data_loader.PipelineDataLoader
+    pipeline:
+      _target_: dash_gi.data_loader.Pipeline
+      steps:
+        - _target_: dash_gi.data_loader.Path
+          path: "/home/luisfpereira/data/pregnancy/28Baby_Hormones.csv"
+        - _target_: dash_gi.data_loader.PdCsvReader
+        - _target_: project_pregnancy.app.data_processing.ManipulateDf
+
+variables:
+  estro:
+    _target_: dash_gi.variables.VarDef
+    name: Estrogen
+    unit: pg/ml
+    min_value: 4100
+    max_value: 12400
+  prog:
+    _target_: dash_gi.variables.VarDef
+    name: Progesteron
+    unit: ng/ml
+    min_value: 54
+    max_value: 103
+  lh:
+    _target_: dash_gi.variables.VarDef
+    name: LH
+    unit: ng/ml
+    min_value: 0.59
+    max_value: 1.45
+  gestWeek:
+    _target_: dash_gi.variables.VarDef
+    name: Gestational Week
+    min_value: 0
+    max_value: 36
+    default_value: 15
+  EndoStatus:
+    _target_: dash_gi.variables.VarDef
+    name: Pregnancy status
+  trimester:
+    _target_: dash_gi.variables.VarDef
+    name: Trimester
+  session_number:
+    _target_: dash_gi.variables.VarDef
+    name: Session Number
+    min_value: 1
+    max_value: 26
+  mri_x:
+    _target_: dash_gi.variables.VarDef
+    name: X Coordinate (Changes Side View)
+  mri_y:
+    _target_: dash_gi.variables.VarDef
+    name: Y Coordinate (Changes Front View)
+  mri_z:
+    _target_: dash_gi.variables.VarDef
+    name: Z Coordinate (Changes Top View)
+
+mri_explorer:
+  # TODO: test prefix
+  _target_: dash_gi.components.MriExplorer
+  mri_data: ${data:mri}
+  hormones_df: ${data:hormones}
+  sliders:
+    _target_: dash_gi.components.ComponentGroup
+    components:
+      - _target_: dash_gi.components.Slider
+        var_def: ${var:session_number}
+      - _target_: dash_gi.components.Slider
+        var_def: ${var:mri_x}
+        step: 5
+      - _target_: dash_gi.components.Slider
+        var_def: ${var:mri_y}
+        step: 5
+      - _target_: dash_gi.components.Slider
+        var_def: ${var:mri_z}
+        step: 5
+  session_info:
+    _target_: dash_gi.components.ComponentGroup
+    title: Session Information
+    components:
+      - _target_: dash_gi.components.DepVar
+        var_def: ${var:session_number}
+      - _target_: dash_gi.components.DepVar
+        var_def: ${var:gestWeek}
+      - _target_: dash_gi.components.DepVar
+        var_def: ${var:estro}
+      - _target_: dash_gi.components.DepVar
+        var_def: ${var:lh}
+      - _target_: dash_gi.components.DepVar
+        var_def: ${var:EndoStatus}
+      - _target_: dash_gi.components.DepVar
+        var_def: ${var:trimester}
+  trims:
+    - - 20
+      - 40
+    - 50
+    - 70
+
+hormone_sliders:
+  estro:
+    _target_: dash_gi.components.Slider
+    step: 500
+    label_style:
+      fontSize: 30
+      display: "block"
+  prog:
+    _target_: dash_gi.components.Slider
+    step: 3
+    label_style:
+      fontSize: 30
+      display: "block"
+  lh:
+    _target_: dash_gi.components.Slider
+    step: 0.05
+    label_style:
+      fontSize: 30
+      display: "block"
+
+gest_week_sliders:
+  gestWeek:
+    _target_: dash_gi.components.Slider
