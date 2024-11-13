@@ -49,6 +49,15 @@ data:
           path: "/home/luisfpereira/data/pregnancy/28Baby_Hormones.csv"
         - _target_: dash_gi.data_loader.PdCsvReader
         - _target_: project_pregnancy.app.data_processing.ManipulateDf
+  mesh: # TODO: temporary
+    _target_: dash_gi.data_loader.MeshLoader
+    filename: /home/luisfpereira/data/cats_lion/catA.ply
+
+models:
+  mesh:
+    _target_: dash_gi.data_loader.ModelLoader
+    data:
+      - {}
 
 variables:
   estro:
@@ -81,7 +90,7 @@ variables:
   trimester:
     _target_: dash_gi.variables.VarDef
     name: Trimester
-  session_number:
+  dayID:
     _target_: dash_gi.variables.VarDef
     name: Session Number
     min_value: 1
@@ -97,15 +106,15 @@ variables:
     name: Z Coordinate (Changes Top View)
 
 mri_explorer:
-  # TODO: test prefix
+  id_prefix: mri-
   _target_: dash_gi.components.MriExplorer
   mri_data: ${data:mri}
   hormones_df: ${data:hormones}
   sliders:
-    _target_: dash_gi.components.ComponentGroup
+    _target_: dash_gi.components.MriSliders
     components:
       - _target_: dash_gi.components.Slider
-        var_def: ${var:session_number}
+        var_def: ${var:dayID}
       - _target_: dash_gi.components.Slider
         var_def: ${var:mri_x}
         step: 5
@@ -115,12 +124,17 @@ mri_explorer:
       - _target_: dash_gi.components.Slider
         var_def: ${var:mri_z}
         step: 5
+    trims:
+      - - 20
+        - 40
+      - 50
+      - 70
   session_info:
     _target_: dash_gi.components.ComponentGroup
     title: Session Information
     components:
       - _target_: dash_gi.components.DepVar
-        var_def: ${var:session_number}
+        var_def: ${var:dayID}
       - _target_: dash_gi.components.DepVar
         var_def: ${var:gestWeek}
       - _target_: dash_gi.components.DepVar
@@ -131,32 +145,35 @@ mri_explorer:
         var_def: ${var:EndoStatus}
       - _target_: dash_gi.components.DepVar
         var_def: ${var:trimester}
-  trims:
-    - - 20
-      - 40
-    - 50
-    - 70
 
-hormone_sliders:
-  estro:
-    _target_: dash_gi.components.Slider
-    step: 500
-    label_style:
-      fontSize: 30
-      display: "block"
-  prog:
-    _target_: dash_gi.components.Slider
-    step: 3
-    label_style:
-      fontSize: 30
-      display: "block"
-  lh:
-    _target_: dash_gi.components.Slider
-    step: 0.05
-    label_style:
-      fontSize: 30
-      display: "block"
+mesh_explorer:
+  _target_: dash_gi.components.MeshExplorer
+  mesh_data: ${data:mesh}
+  graph:
+    _target_: dash_gi.components.MeshGraph
+    id_: mesh-plot
+  sliders:
+    _target_: dash_gi.components.ComponentGroup
+    components:
+      - _target_: dash_gi.components.Slider
+        var_def: ${var:estro}
+        step: 500
+        label_style:
+          fontSize: 30
+          display: "block"
+      - _target_: dash_gi.components.Slider
+        var_def: ${var:prog}
+        step: 3
+        label_style:
+          fontSize: 30
+          display: "block"
+      - _target_: dash_gi.components.Slider
+        var_def: ${var:lh}
+        step: 0.05
+        label_style:
+          fontSize: 30
+          display: "block"
 
-gest_week_sliders:
+gest_week_sliders: # TODO: need to add toggle
   gestWeek:
     _target_: dash_gi.components.Slider

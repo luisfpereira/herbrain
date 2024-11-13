@@ -372,7 +372,7 @@ def explore_data(mri_explorer):
     return page
 
 
-def ai_hormone_prediction(gest_week_sliders, hormone_sliders):
+def ai_hormone_prediction(gest_week_sliders, mesh_explorer):
     """Return the content of the AI hormone prediction page."""
     banner = [
         dbc.Row(
@@ -447,6 +447,9 @@ def ai_hormone_prediction(gest_week_sliders, hormone_sliders):
         body=True,
     )
 
+    # TODO: update
+    graph, sliders = mesh_explorer.to_dash()
+
     hormone_sliders_card = dbc.Card(
         [
             html.Div(
@@ -454,7 +457,8 @@ def ai_hormone_prediction(gest_week_sliders, hormone_sliders):
                 style={"display": "block"},
                 children=[
                     dbc.Stack(
-                        hormone_sliders.to_dash(),
+                        # TODO: update
+                        sliders,
                         gap=3,
                     )
                 ],
@@ -498,7 +502,8 @@ def ai_hormone_prediction(gest_week_sliders, hormone_sliders):
                 [
                     dbc.Col(
                         html.Div(
-                            dcc.Graph(id="mesh-plot"),
+                            # TODO: update
+                            graph,
                             style={"paddingTop": "0px"},
                         ),
                         sm=4,

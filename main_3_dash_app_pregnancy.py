@@ -225,6 +225,7 @@ def my_app(cfg):
     variables = {
         key: instantiate(value, id_=key) for key, value in cfg.variables.items()
     }
+    # TODO: update here
     data = {key: instantiate(value).load() for key, value in cfg.data.items()}
 
     OmegaConf.register_new_resolver("var", lambda key: variables[key])
@@ -234,12 +235,6 @@ def my_app(cfg):
 
     explore_data_page = page_content.explore_data(mri_explorer)
 
-    hormone_sliders = ComponentGroup(
-        [
-            instantiate(value, var_def=variables[key])
-            for key, value in cfg.hormone_sliders.items()
-        ]
-    )
     gest_week_sliders = ComponentGroup(
         [
             instantiate(value, var_def=variables[key])
@@ -247,8 +242,9 @@ def my_app(cfg):
         ]
     )
 
+    mesh_explorer = instantiate(cfg.mesh_explorer)
     ai_hormone_prediction_page = page_content.ai_hormone_prediction(
-        gest_week_sliders, hormone_sliders
+        gest_week_sliders, mesh_explorer
     )
 
     sidebar = page_content.sidebar()
@@ -271,10 +267,6 @@ def my_app(cfg):
             content,
         ]
     )
-
-    # create callbacks
-    # TODO: update here
-    # create_update_nii_plot_basic(raw_mri_data)
 
     server_cfg = cfg.server
     app.run_server(
