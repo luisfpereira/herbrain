@@ -372,7 +372,7 @@ def explore_data(mri_explorer):
     return page
 
 
-def ai_hormone_prediction(gest_week_sliders, mesh_explorer):
+def ai_hormone_prediction(mesh_explorer):
     """Return the content of the AI hormone prediction page."""
     banner = [
         dbc.Row(
@@ -408,18 +408,6 @@ def ai_hormone_prediction(gest_week_sliders, mesh_explorer):
         ],
     )
 
-    instructions_text = dbc.Row(
-        [
-            html.P(
-                [
-                    "Use the hormone sliders or the gestational week slider to adjust observe the predicted shape changes in the left hippocampal formation.",
-                    html.Br(),
-                ],
-                style={"fontSize": S.text_fontsize, "fontFamily": S.text_fontfamily},
-            ),
-        ],
-    )
-
     acknowledgements_text = dbc.Row(
         [
             html.P(
@@ -430,52 +418,6 @@ def ai_hormone_prediction(gest_week_sliders, mesh_explorer):
             ),
         ],
     )
-
-    week_slider_card = dbc.Card(
-        [
-            html.Div(
-                id="gest_week_slider_container",
-                style={"display": "block"},
-                children=[
-                    dbc.Stack(
-                        gest_week_sliders.to_dash(),
-                        gap=3,
-                    )
-                ],
-            ),
-        ],
-        body=True,
-    )
-
-    # TODO: update
-    graph, sliders = mesh_explorer.to_dash()
-
-    hormone_sliders_card = dbc.Card(
-        [
-            html.Div(
-                id="hormone_slider_container",
-                style={"display": "block"},
-                children=[
-                    dbc.Stack(
-                        # TODO: update
-                        sliders,
-                        gap=3,
-                    )
-                ],
-            ),
-        ],
-        body=True,
-    )
-
-    sliders_column = [
-        html.Button(
-            "Click Here to Toggle Between Gestational Week vs Hormone Value Prediction",
-            id="button",
-            n_clicks=0,
-        ),
-        dbc.Row(week_slider_card),
-        dbc.Row(hormone_sliders_card),
-    ]
 
     substructure_legend_row = dbc.Row(
         [
@@ -497,28 +439,9 @@ def ai_hormone_prediction(gest_week_sliders, mesh_explorer):
             html.Hr(),
             instructions_title(),
             html.Div(style={"height": S.space_between_title_and_content}),
-            instructions_text,
-            dbc.Row(
-                [
-                    dbc.Col(
-                        html.Div(
-                            # TODO: update
-                            graph,
-                            style={"paddingTop": "0px"},
-                        ),
-                        sm=4,
-                        width=700,
-                    ),
-                    dbc.Col(sm=3, width=100),
-                    dbc.Col(sliders_column, sm=4, width=700),
-                ],
-                align="center",
-                style={
-                    "marginLeft": S.margin_side,
-                    "marginRight": S.margin_side,
-                    "marginTop": "50px",
-                },
-            ),
+        ]
+        + mesh_explorer.to_dash()
+        + [
             substructure_legend_row,
             html.Div(style={"height": S.space_between_sections}),
             html.Hr(),

@@ -150,9 +150,11 @@ mesh_explorer:
   _target_: dash_gi.components.MeshExplorer
   mesh_data: ${data:mesh}
   graph:
-    _target_: dash_gi.components.MeshGraph
+    _target_: dash_gi.components.Graph
     id_: mesh-plot
-  sliders:
+    plotter:
+      _target_: dash_gi.plot.MeshPlotter
+  hormone_sliders:
     _target_: dash_gi.components.ComponentGroup
     components:
       - _target_: dash_gi.components.Slider
@@ -173,7 +175,6 @@ mesh_explorer:
         label_style:
           fontSize: 30
           display: "block"
-
-gest_week_sliders: # TODO: need to add toggle
-  gestWeek:
+  week_sliders:
     _target_: dash_gi.components.Slider
+    var_def: ${var:gestWeek}

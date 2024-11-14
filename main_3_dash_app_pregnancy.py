@@ -235,17 +235,8 @@ def my_app(cfg):
 
     explore_data_page = page_content.explore_data(mri_explorer)
 
-    gest_week_sliders = ComponentGroup(
-        [
-            instantiate(value, var_def=variables[key])
-            for key, value in cfg.gest_week_sliders.items()
-        ]
-    )
-
     mesh_explorer = instantiate(cfg.mesh_explorer)
-    ai_hormone_prediction_page = page_content.ai_hormone_prediction(
-        gest_week_sliders, mesh_explorer
-    )
+    ai_hormone_prediction_page = page_content.ai_hormone_prediction(mesh_explorer)
 
     sidebar = page_content.sidebar()
     home_page = page_content.homepage()
