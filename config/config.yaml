@@ -1,5 +1,5 @@
 server:
-  debug: false
+  debug: true
   use_reloader: false
   host: "0.0.0.0"
   port: "8050"
@@ -18,54 +18,54 @@ style:
 
 data:
   mri:
-    _target_: dash_gi.data_loader.PipelineDataLoader
+    _target_: dash_gi.preprocessing.PipelineDataLoader
     pipeline:
-      _target_: dash_gi.data_loader.Pipeline
+      _target_: dash_gi.preprocessing.Pipeline
       steps:
-        - _target_: dash_gi.data_loader.FileFinder
+        - _target_: dash_gi.preprocessing.path.FileFinder
           data_dir: "/home/luisfpereira/data/pregnancy/folder1"
-        - _target_: dash_gi.data_loader.Map
+        - _target_: dash_gi.preprocessing.Map
           step:
-            _target_: dash_gi.data_loader.FileFinder
+            _target_: dash_gi.preprocessing.path.FileFinder
             rules:
-              - _target_: dash_gi.data_loader.FileRule
+              - _target_: dash_gi.preprocessing.path.FileRule
                 value: BrainNormalized
-              - _target_: dash_gi.data_loader.FileRule
+              - _target_: dash_gi.preprocessing.path.FileRule
                 value: .nii.gz
                 func: endswith
             warn: false
-        - _target_: dash_gi.data_loader.Sorter
-        # - _target_: dash_gi.data_loader.Truncater # for debugging
+        - _target_: dash_gi.preprocessing.Sorter
+        # - _target_: dash_gi.preprocessing.Truncater # for debugging
         #   value: 2
-        - _target_: dash_gi.data_loader.Map
+        - _target_: dash_gi.preprocessing.Map
           n_jobs: 5
           verbose: 1
           step:
-            _target_: dash_gi.data_loader.MriImageLoader
+            _target_: dash_gi.preprocessing.mri.MriImageLoader
   hormones:
-    _target_: dash_gi.data_loader.PipelineDataLoader
+    _target_: dash_gi.preprocessing.PipelineDataLoader
     pipeline:
-      _target_: dash_gi.data_loader.Pipeline
+      _target_: dash_gi.preprocessing.Pipeline
       steps:
-        - _target_: dash_gi.data_loader.Path
+        - _target_: dash_gi.preprocessing.path.Path
           path: "/home/luisfpereira/data/pregnancy/28Baby_Hormones.csv"
-        - _target_: dash_gi.data_loader.PdCsvReader
+        - _target_: dash_gi.preprocessing.pd.PdCsvReader
         - _target_: project_pregnancy.app.data_processing.ManipulateDf
   mesh: # TODO: temporary
-    _target_: dash_gi.data_loader.PipelineDataLoader
+    _target_: dash_gi.preprocessing.PipelineDataLoader
     pipeline:
-      _target_: dash_gi.data_loader.Pipeline
+      _target_: dash_gi.preprocessing.Pipeline
       steps:
-        - _target_: dash_gi.data_loader.FileFinder
+        - _target_: dash_gi.preprocessing.path.FileFinder
           data_dir: ./results/unregistered_decimated
           rules:
-            - _target_: dash_gi.data_loader.FileRule
+            - _target_: dash_gi.preprocessing.path.FileRule
               value: .ply
               func: endswith
-        - _target_: dash_gi.data_loader.Sorter
-        - _target_: dash_gi.data_loader.Map
+        - _target_: dash_gi.preprocessing.Sorter
+        - _target_: dash_gi.preprocessing.Map
           step:
-            _target_: dash_gi.data_loader.TrimeshReader
+            _target_: dash_gi.preprocessing.mesh.TrimeshReader
 
 variables:
   estro:
