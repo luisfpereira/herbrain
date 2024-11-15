@@ -9,33 +9,16 @@ Notes on Dash:
     to change the size of the title.
 """
 
-import os
-import random
-
 import dash_bootstrap_components as dbc
 import hydra
 import numpy as np
-import plotly.graph_objects as go
-from dash import Dash, Input, Output, State, callback, dcc, html
-from hydra.utils import instantiate
-from sklearn.decomposition import PCA
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
-
-os.environ["GEOMSTATS_BACKEND"] = "pytorch"  # noqa: E402
-import geomstats.backend as gs
-import nibabel as nib
-from dash_gi.components import ComponentGroup
+from dash import Dash, Input, Output, callback, html
 from dash_gi.style import update_style
+from hydra.utils import instantiate
 from omegaconf import OmegaConf
 
-import project_pregnancy.app.calculations as calculations
 import project_pregnancy.app.page_content as page_content
-import project_pregnancy.default_config as default_config
-import src.datasets.utils as data_utils
 from project_pregnancy.app.registry import PAGES
-from src.preprocessing import smoothing
-from src.regression import training
 
 # TODO: replace print by logging
 
@@ -75,6 +58,7 @@ from src.regression import training
 @callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
     """Render the page content based on the URL."""
+    # TODO: move to dash-gi?
 
     page = PAGES.get(pathname)
     if page is not None:
@@ -148,68 +132,6 @@ def interpolate_or_return(df, x, x_label, y_label):
         return linear_interpolation(x_lower, x_upper, y_lower, y_upper, x)
 
 
-# @app.callback(
-#     [
-#         Output("mesh-plot", "figure"),
-#         Output("gest_week_slider_container", component_property="style"),
-#         Output("hormone_slider_container", component_property="style"),
-#     ],
-#     Input("gest-week-slider", "drag_value"),
-#     Input("estrogen-slider", "drag_value"),
-#     Input("progesterone-slider", "drag_value"),
-#     Input("LH-slider", "drag_value"),
-#     State("mesh-plot", "figure"),
-#     State("mesh-plot", "relayoutData"),
-#     Input("button", "n_clicks"),
-# )
-# def update_mesh(
-#     gest_week, estrogen, progesterone, LH, current_figure, relayoutData, n_clicks=0
-# ):
-#     """Update the mesh plot based on the hormone levels."""
-#     if (n_clicks % 2) == 0:
-#         gest_week_slider_style = {"display": "none"}
-#         hormone_week_slider_style = {"display": "block"}
-
-#     else:
-#         gest_week_slider_style = {"display": "block"}
-#         hormone_week_slider_style = {"display": "none"}
-
-#         print("hiding hormone sliders")
-
-#         progesterone = interpolate_or_return(
-#             hormones_df, gest_week, x_label="gestWeek", y_label="prog"
-#         )
-#         estrogen = interpolate_or_return(
-#             hormones_df, gest_week, x_label="gestWeek", y_label="estro"
-#         )
-#         LH = interpolate_or_return(
-#             hormones_df, gest_week, x_label="gestWeek", y_label="lh"
-#         )
-#         print("progesterone", progesterone)
-#         print("estrogen", estrogen)
-#         print("LH", LH)
-#         print("gest_week", gest_week)
-
-#     X_multiple = gs.array([[estrogen, progesterone, LH]])
-
-#     mesh_plot = calculations.predict_mesh(
-#         X_multiple,
-#         lr_hormones,
-#         pca_hormones,
-#         y_mean_hormones,
-#         n_vertices_hormones,
-#         mesh_neighbors_hormones,
-#         space,
-#         vertex_colors,
-#         current_figure=current_figure,
-#         relayoutData=relayoutData,
-#     )
-
-#     print(n_clicks)
-
-#     return mesh_plot, gest_week_slider_style, hormone_week_slider_style
-
-
 @hydra.main(version_base=None, config_path="./config", config_name="config")
 def my_app(cfg):
     style = cfg.style
@@ -225,39 +147,22 @@ def my_app(cfg):
     variables = {
         key: instantiate(value, id_=key) for key, value in cfg.variables.items()
     }
-    # TODO: update here
     data = {key: instantiate(value).load() for key, value in cfg.data.items()}
 
+    # TODO: move this to dash-gi?
     OmegaConf.register_new_resolver("var", lambda key: variables[key])
     OmegaConf.register_new_resolver("data", lambda key: data[key])
 
     mri_explorer = instantiate(cfg.mri_explorer)
-
-    explore_data_page = page_content.explore_data(mri_explorer)
-
     mesh_explorer = instantiate(cfg.mesh_explorer)
-    ai_hormone_prediction_page = page_content.ai_hormone_prediction(mesh_explorer)
 
-    sidebar = page_content.sidebar()
+    # create pages
+    explore_data_page = page_content.explore_data(mri_explorer)
+    ai_hormone_prediction_page = page_content.ai_hormone_prediction(mesh_explorer)
     home_page = page_content.homepage()
 
-    # TODO: move to differnet place?
-    # the styles for the main content position it to the right of the sidebar and
-    # add some padding.
-    CONTENT_STYLE = {
-        "margin-left": "18rem",
-        "margin-right": "2rem",
-        "padding": "2rem 1rem",
-    }
-    content = html.Div(id="page-content", style=CONTENT_STYLE)
-
-    app.layout = html.Div(
-        [
-            dcc.Location(id="url"),
-            sidebar,
-            content,
-        ]
-    )
+    app.layout = page_content.app_layout()
+    app.title = cfg.app.title
 
     server_cfg = cfg.server
     app.run_server(

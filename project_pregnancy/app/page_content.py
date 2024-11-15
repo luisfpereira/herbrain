@@ -1,26 +1,10 @@
 """Functions to generate the content of the different pages of the app."""
 
-import os
-import random
-
 import dash_bootstrap_components as dbc
-import numpy as np
-import plotly.graph_objects as go
-from dash import Dash, Input, Output, State, callback, dcc, get_asset_url, html
-
-os.environ["GEOMSTATS_BACKEND"] = "pytorch"  # noqa: E402
-import geomstats.backend as gs
+from dash import dcc, get_asset_url, html
 from dash_gi.style import STYLE as S
 
-import project_pregnancy.default_config as default_config
-import src.datasets.utils as data_utils
-from src.preprocessing import smoothing
-from src.regression import training
-
 from .registry import register_page
-
-# define repeated contents within a function
-
 
 SIDEBAR_STYLE = {
     "position": "fixed",
@@ -463,3 +447,22 @@ def ai_hormone_prediction(mesh_explorer):
     register_page("/page-2", page)
 
     return page
+
+
+def app_layout():
+    # the styles for the main content position it to the right of the sidebar and
+    # add some padding.
+    CONTENT_STYLE = {
+        "margin-left": "18rem",
+        "margin-right": "2rem",
+        "padding": "2rem 1rem",
+    }
+    content = html.Div(id="page-content", style=CONTENT_STYLE)
+
+    return html.Div(
+        [
+            dcc.Location(id="url"),
+            sidebar(),
+            content,
+        ]
+    )
