@@ -4,11 +4,11 @@ class ManipulateDf:
 
         hormones_df = data
 
-        hormones_df["dayID"] = [
+        hormones_df["sessionID"] = [
             int(entry.split("-")[1]) for entry in hormones_df["sessionID"]
         ]
         hormones_df = hormones_df.drop(
-            hormones_df[hormones_df["dayID"] == 27].index
+            hormones_df[hormones_df["sessionID"] == 27].index
         )  # sess 27 is a repeat of sess 26
         # df = df[df["dayID"] != 27]  # sess 27 is a repeat of sess 26
 

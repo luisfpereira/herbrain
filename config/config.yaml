@@ -98,7 +98,7 @@ variables:
   trimester:
     _target_: dash_gi.variables.VarDef
     name: Trimester
-  dayID:
+  sessionID:
     _target_: dash_gi.variables.VarDef
     name: Session Number
     min_value: 1
@@ -122,7 +122,7 @@ mri_explorer:
     _target_: dash_gi.components.MriSliders
     components:
       - _target_: dash_gi.components.Slider
-        var_def: ${var:dayID}
+        var_def: ${var:sessionID}
       - _target_: dash_gi.components.Slider
         var_def: ${var:mri_x}
         step: 5
@@ -142,7 +142,7 @@ mri_explorer:
     title: Session Information
     components:
       - _target_: dash_gi.components.DepVar
-        var_def: ${var:dayID}
+        var_def: ${var:sessionID}
       - _target_: dash_gi.components.DepVar
         var_def: ${var:gestWeek}
       - _target_: dash_gi.components.DepVar
