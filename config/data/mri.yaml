@@ -1,0 +1,23 @@
+mri:
+  _target_: dash_gi.preprocessing.Pipeline
+  steps:
+    - _target_: dash_gi.preprocessing.path.FileFinder
+      data_dir: "/home/luisfpereira/data/pregnancy/folder1"
+    - _target_: dash_gi.preprocessing.Map
+      step:
+        _target_: dash_gi.preprocessing.path.FileFinder
+        rules:
+          - _target_: dash_gi.preprocessing.path.FileRule
+            value: BrainNormalized
+          - _target_: dash_gi.preprocessing.path.FileRule
+            value: .nii.gz
+            func: endswith
+        warn: false
+    - _target_: dash_gi.preprocessing.Sorter
+    - _target_: dash_gi.preprocessing.Truncater # for debugging
+      value: 2
+    - _target_: dash_gi.preprocessing.Map
+      n_jobs: 1
+      verbose: 1
+      step:
+        _target_: dash_gi.preprocessing.mri.MriImageLoader

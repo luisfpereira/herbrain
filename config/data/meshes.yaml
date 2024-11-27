@@ -1,0 +1,23 @@
+meshes: # outputs dict of meshes (hash is sessionID)
+  _target_: dash_gi.preprocessing.Pipeline
+  steps:
+    - _target_: dash_gi.preprocessing.path.FileFinder
+      data_dir: /home/luisfpereira/data/adele/pregnancy/1_preprocess/d_reparameterized
+      rules:
+        - _target_: dash_gi.preprocessing.path.FileRule
+          value: .ply
+          func: endswith
+    - _target_: dash_gi.preprocessing.Sorter
+    - _target_: dash_gi.preprocessing.ParallelPipeline
+      pipelines:
+        - _target_: dash_gi.preprocessing.Map
+          step:
+            _target_: dash_gi.preprocessing.Pipeline
+            steps:
+              - _target_: dash_gi.preprocessing.path.PathShortener
+              - _target_: dash_gi.preprocessing.str.DigitFinder
+                index: 1
+        - _target_: dash_gi.preprocessing.Map
+          step:
+            _target_: dash_gi.preprocessing.mesh.TrimeshReader
+    - _target_: dash_gi.preprocessing.Hash

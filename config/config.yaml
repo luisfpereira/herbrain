@@ -1,3 +1,7 @@
+defaults:
+  - data: data
+  - models: models
+
 server:
   debug: true
   use_reloader: false
@@ -15,57 +19,6 @@ style:
   title_fontsize: 40px
   space_between_sections: 70px
   space_between_title_and_content: 30px
-
-data:
-  mri:
-    _target_: dash_gi.preprocessing.PipelineDataLoader
-    pipeline:
-      _target_: dash_gi.preprocessing.Pipeline
-      steps:
-        - _target_: dash_gi.preprocessing.path.FileFinder
-          data_dir: "/home/luisfpereira/data/pregnancy/folder1"
-        - _target_: dash_gi.preprocessing.Map
-          step:
-            _target_: dash_gi.preprocessing.path.FileFinder
-            rules:
-              - _target_: dash_gi.preprocessing.path.FileRule
-                value: BrainNormalized
-              - _target_: dash_gi.preprocessing.path.FileRule
-                value: .nii.gz
-                func: endswith
-            warn: false
-        - _target_: dash_gi.preprocessing.Sorter
-        # - _target_: dash_gi.preprocessing.Truncater # for debugging
-        #   value: 2
-        - _target_: dash_gi.preprocessing.Map
-          n_jobs: 5
-          verbose: 1
-          step:
-            _target_: dash_gi.preprocessing.mri.MriImageLoader
-  hormones:
-    _target_: dash_gi.preprocessing.PipelineDataLoader
-    pipeline:
-      _target_: dash_gi.preprocessing.Pipeline
-      steps:
-        - _target_: dash_gi.preprocessing.path.Path
-          path: "/home/luisfpereira/data/pregnancy/28Baby_Hormones.csv"
-        - _target_: dash_gi.preprocessing.pd.PdCsvReader
-        - _target_: project_pregnancy.app.data_processing.ManipulateDf
-  mesh: # TODO: temporary
-    _target_: dash_gi.preprocessing.PipelineDataLoader
-    pipeline:
-      _target_: dash_gi.preprocessing.Pipeline
-      steps:
-        - _target_: dash_gi.preprocessing.path.FileFinder
-          data_dir: ./results/unregistered_decimated
-          rules:
-            - _target_: dash_gi.preprocessing.path.FileRule
-              value: .ply
-              func: endswith
-        - _target_: dash_gi.preprocessing.Sorter
-        - _target_: dash_gi.preprocessing.Map
-          step:
-            _target_: dash_gi.preprocessing.mesh.TrimeshReader
 
 variables:
   estro:
@@ -156,7 +109,8 @@ mri_explorer:
 
 mesh_explorer:
   _target_: dash_gi.components.MeshExplorer
-  mesh_data: ${data:mesh}
+  week_mesh_model: ${model:week_mesh}
+  hormones_mesh_model: ${model:hormones_mesh}
   graph:
     _target_: dash_gi.components.Graph
     id_: mesh-plot
