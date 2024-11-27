@@ -12,4 +12,7 @@ class ManipulateDf:
         )  # sess 27 is a repeat of sess 26
         # df = df[df["dayID"] != 27]  # sess 27 is a repeat of sess 26
 
+        hormones_df.set_index(
+            "sessionID", inplace=True, drop=False, verify_integrity=True
+        )
         return hormones_df
