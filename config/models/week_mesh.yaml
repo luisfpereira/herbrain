@@ -1,20 +1,19 @@
-week_mesh:
-  _target_: dash_gi.models.SklearnLikeModelFactory
-  model:
-    _target_: dash_gi.models.VertexBasedMeshRegressor
-    vertex_model:
-      _target_: geomstats.learning._sklearn.LinearRegression
-  data:
-    - ${data:hormones_gest_week}
-    - ${data:meshes}
-  pipeline:
-    _target_: dash_gi.preprocessing.Pipeline
-    steps:
-      - _target_: dash_gi.preprocessing.HashMerger
-      - _target_: dash_gi.preprocessing.NestingSwapper
-      - _target_: dash_gi.preprocessing.IndexMap
-        index: 0
+_target_: dash_gi.models.SklearnLikeModelFactory
+model:
+  _target_: dash_gi.models.VertexBasedMeshRegressor
+  vertex_model:
+    _target_: sklearn.linear_model.LinearRegression
+data:
+  - ${data:hormones_gest_week}
+  - ${data:meshes}
+pipeline:
+  _target_: dash_gi.preprocessing.Pipeline
+  steps:
+    - _target_: dash_gi.preprocessing.HashMerger
+    - _target_: dash_gi.preprocessing.NestingSwapper
+    - _target_: dash_gi.preprocessing.IndexMap
+      index: 0
+      step:
+        _target_: dash_gi.preprocessing.Map
         step:
-          _target_: dash_gi.preprocessing.Map
-          step:
-            _target_: dash_gi.preprocessing.ToList
+          _target_: dash_gi.preprocessing.ToList
