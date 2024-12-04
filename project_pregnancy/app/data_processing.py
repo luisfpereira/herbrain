@@ -1,4 +1,7 @@
-class ManipulateDf:
+from polpo.preprocessing.base import PreprocessingStep
+
+
+class ManipulateDf(PreprocessingStep):
     def apply(self, data):
         # TODO: may need to do more
 

@@ -2,7 +2,7 @@
 
 import dash_bootstrap_components as dbc
 from dash import dcc, get_asset_url, html
-from dash_gi.style import STYLE as S
+from polpo.dash.style import STYLE as S
 
 from .registry import register_page
 

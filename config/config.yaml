@@ -23,67 +23,67 @@ style:
 
 variables:
   estro:
-    _target_: dash_gi.variables.VarDef
+    _target_: polpo.dash.variables.VarDef
     name: Estrogen
     unit: pg/ml
     min_value: 4100
     max_value: 12400
   prog:
-    _target_: dash_gi.variables.VarDef
+    _target_: polpo.dash.variables.VarDef
     name: Progesteron
     unit: ng/ml
     min_value: 54
     max_value: 103
   lh:
-    _target_: dash_gi.variables.VarDef
+    _target_: polpo.dash.variables.VarDef
     name: LH
     unit: ng/ml
     min_value: 0.59
     max_value: 1.45
   gestWeek:
-    _target_: dash_gi.variables.VarDef
+    _target_: polpo.dash.variables.VarDef
     name: Gestational Week
     min_value: 0
     max_value: 36
     default_value: 15
   EndoStatus:
-    _target_: dash_gi.variables.VarDef
+    _target_: polpo.dash.variables.VarDef
     name: Pregnancy status
   trimester:
-    _target_: dash_gi.variables.VarDef
+    _target_: polpo.dash.variables.VarDef
     name: Trimester
   sessionID:
-    _target_: dash_gi.variables.VarDef
+    _target_: polpo.dash.variables.VarDef
     name: Session Number
     min_value: 1
     max_value: 26
   mri_x:
-    _target_: dash_gi.variables.VarDef
+    _target_: polpo.dash.variables.VarDef
     name: X Coordinate (Changes Side View)
   mri_y:
-    _target_: dash_gi.variables.VarDef
+    _target_: polpo.dash.variables.VarDef
     name: Y Coordinate (Changes Front View)
   mri_z:
-    _target_: dash_gi.variables.VarDef
+    _target_: polpo.dash.variables.VarDef
     name: Z Coordinate (Changes Top View)
 
 mri_explorer:
   id_prefix: mri-
-  _target_: dash_gi.components.MriExplorer
+  _target_: polpo.dash.components.MriExplorer
   mri_data: ${data:mri}
   hormones_df: ${data:hormones}
   sliders:
-    _target_: dash_gi.components.MriSliders
+    _target_: polpo.dash.components.MriSliders
     components:
-      - _target_: dash_gi.components.Slider
+      - _target_: polpo.dash.components.Slider
         var_def: ${var:sessionID}
-      - _target_: dash_gi.components.Slider
+      - _target_: polpo.dash.components.Slider
         var_def: ${var:mri_x}
         step: 5
-      - _target_: dash_gi.components.Slider
+      - _target_: polpo.dash.components.Slider
         var_def: ${var:mri_y}
         step: 5
-      - _target_: dash_gi.components.Slider
+      - _target_: polpo.dash.components.Slider
         var_def: ${var:mri_z}
         step: 5
     trims:
@@ -92,52 +92,52 @@ mri_explorer:
       - 50
       - 70
   session_info:
-    _target_: dash_gi.components.ComponentGroup
+    _target_: polpo.dash.components.ComponentGroup
     title: Session Information
     components:
-      - _target_: dash_gi.components.DepVar
+      - _target_: polpo.dash.components.DepVar
         var_def: ${var:sessionID}
-      - _target_: dash_gi.components.DepVar
+      - _target_: polpo.dash.components.DepVar
         var_def: ${var:gestWeek}
-      - _target_: dash_gi.components.DepVar
+      - _target_: polpo.dash.components.DepVar
         var_def: ${var:estro}
-      - _target_: dash_gi.components.DepVar
+      - _target_: polpo.dash.components.DepVar
         var_def: ${var:lh}
-      - _target_: dash_gi.components.DepVar
+      - _target_: polpo.dash.components.DepVar
         var_def: ${var:EndoStatus}
-      - _target_: dash_gi.components.DepVar
+      - _target_: polpo.dash.components.DepVar
         var_def: ${var:trimester}
 
 mesh_explorer:
-  _target_: dash_gi.components.MeshExplorer
+  _target_: polpo.dash.components.MeshExplorer
   week_mesh_model: ${model:week_mesh}
   hormones_mesh_model: ${model:hormones_mesh}
   graph:
-    _target_: dash_gi.components.Graph
+    _target_: polpo.dash.components.Graph
     id_: mesh-plot
     plotter:
-      _target_: dash_gi.plot.MeshPlotter
+      _target_: polpo.plot.MeshPlotter
   hormone_sliders:
-    _target_: dash_gi.components.ComponentGroup
+    _target_: polpo.dash.components.ComponentGroup
     components:
-      - _target_: dash_gi.components.Slider
+      - _target_: polpo.dash.components.Slider
         var_def: ${var:estro}
         step: 500
         label_style:
           fontSize: 30
           display: "block"
-      - _target_: dash_gi.components.Slider
+      - _target_: polpo.dash.components.Slider
         var_def: ${var:prog}
         step: 3
         label_style:
           fontSize: 30
           display: "block"
-      - _target_: dash_gi.components.Slider
+      - _target_: polpo.dash.components.Slider
         var_def: ${var:lh}
         step: 0.05
         label_style:
           fontSize: 30
           display: "block"
   week_sliders:
-    _target_: dash_gi.components.Slider
+    _target_: polpo.dash.components.Slider
     var_def: ${var:gestWeek}

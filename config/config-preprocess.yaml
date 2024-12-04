@@ -1,73 +1,73 @@
 # TODO: make it robust to failures during time consuming procedures
 
 data_loader:
-  _target_: dash_gi.preprocessing.PipelineDataLoader
+  _target_: polpo.preprocessing.PipelineDataLoader
   pipeline:
-    _target_: dash_gi.preprocessing.Pipeline
+    _target_: polpo.preprocessing.Pipeline
     steps:
       # get image paths
-      - _target_: dash_gi.preprocessing.path.FileFinder
+      - _target_: polpo.preprocessing.path.FileFinder
         data_dir: "/home/luisfpereira/data/pregnancy/Segmentations"
-      - _target_: dash_gi.preprocessing.Map
+      - _target_: polpo.preprocessing.Map
         step:
-          _target_: dash_gi.preprocessing.path.FileFinder
+          _target_: polpo.preprocessing.path.FileFinder
           rules:
-            - _target_: dash_gi.preprocessing.path.FileRule
+            - _target_: polpo.preprocessing.path.FileRule
               value: left
               func: startswith
-            - _target_: dash_gi.preprocessing.path.FileRule
+            - _target_: polpo.preprocessing.path.FileRule
               value: .nii.gz
               func: endswith
           warn: false
-      - _target_: dash_gi.preprocessing.EmptyRemover
-      - _target_: dash_gi.preprocessing.Sorter
-      # - _target_: dash_gi.preprocessing.Truncater # for debugging
+      - _target_: polpo.preprocessing.EmptyRemover
+      - _target_: polpo.preprocessing.Sorter
+      # - _target_: polpo.preprocessing.Truncater # for debugging
       #   value: 1
       # get meshes
-      - _target_: dash_gi.preprocessing.ParallelPipeline
+      - _target_: polpo.preprocessing.ParallelPipeline
         pipelines:
-          - _target_: dash_gi.preprocessing.Map
+          - _target_: polpo.preprocessing.Map
             step:
-              _target_: dash_gi.preprocessing.path.PathShortener
-          - _target_: dash_gi.preprocessing.Pipeline
+              _target_: polpo.preprocessing.path.PathShortener
+          - _target_: polpo.preprocessing.Pipeline
             steps:
-              - _target_: dash_gi.preprocessing.Map
+              - _target_: polpo.preprocessing.Map
                 n_jobs: 5
                 verbose: 1
                 step:
-                  _target_: dash_gi.preprocessing.Pipeline
+                  _target_: polpo.preprocessing.Pipeline
                   # individual preprocessing
                   steps:
-                    - _target_: dash_gi.preprocessing.mri.MriImageLoader
-                    - _target_: dash_gi.preprocessing.mri.MeshExtractorFromSegmentedImage
+                    - _target_: polpo.preprocessing.mri.MriImageLoader
+                    - _target_: polpo.preprocessing.mri.MeshExtractorFromSegmentedImage
                       structure_id: -1
-                    - _target_: dash_gi.preprocessing.mesh.TrimeshFromData
-                    - _target_: dash_gi.preprocessing.mesh.MeshCenterer
-                    - _target_: dash_gi.preprocessing.mesh.TrimeshFaceRemoverByArea
+                    - _target_: polpo.preprocessing.mesh.TrimeshFromData
+                    - _target_: polpo.preprocessing.mesh.MeshCenterer
+                    - _target_: polpo.preprocessing.mesh.TrimeshFaceRemoverByArea
                       threshold: 0.01
-                    - _target_: dash_gi.preprocessing.mesh.MeshScaler
+                    - _target_: polpo.preprocessing.mesh.MeshScaler
                       scaling_factor: 20.0
-                    # - _target_: dash_gi.preprocessing.TrimeshDecimator
+                    # - _target_: polpo.preprocessing.TrimeshDecimator
                     #   percent: 0.1
-                    - _target_: dash_gi.preprocessing.mesh.TrimeshToData
-                    - _target_: dash_gi.preprocessing.mesh.FastSimplificationDecimator
+                    - _target_: polpo.preprocessing.mesh.TrimeshToData
+                    - _target_: polpo.preprocessing.mesh.FastSimplificationDecimator
                       target_reduction: 0.9
                     # TODO: add a color-based rotation registration before any other
                     # registration? e.g. based on rigid alignment of color centroids
               # register meshes
-              - _target_: dash_gi.preprocessing.TupleWithIncoming
+              - _target_: polpo.preprocessing.TupleWithIncoming
                 step:
-                  _target_: dash_gi.preprocessing.IndexSelector
+                  _target_: polpo.preprocessing.IndexSelector
                   index: 0
                   repeat: true
-              - _target_: dash_gi.preprocessing.Map
+              - _target_: polpo.preprocessing.Map
                 # TODO: how to avoid reparametrize agains self? (add verification in aligner)
                 n_jobs: 5
                 verbose: 1
                 step:
-                  _target_: dash_gi.preprocessing.Pipeline
+                  _target_: polpo.preprocessing.Pipeline
                   steps:
-                    # - _target_: dash_gi.preprocessing.mesh.H2MeshAligner
+                    # - _target_: polpo.preprocessing.mesh.H2MeshAligner
                     #   a0: 0.01
                     #   a1: 10.0
                     #   b1: 10.0
@@ -106,10 +106,10 @@ data_loader:
                     #       time_steps: 5
                     #       tri_unsample: false
                     #       index: 0
-                    - _target_: dash_gi.preprocessing.mesh.IdentityMeshAligner
-                    - _target_: dash_gi.preprocessing.mesh.TrimeshFromData
+                    - _target_: polpo.preprocessing.mesh.IdentityMeshAligner
+                    - _target_: polpo.preprocessing.mesh.TrimeshFromData
       # save results
-      - _target_: dash_gi.preprocessing.Map
+      - _target_: polpo.preprocessing.Map
         step:
-          _target_: dash_gi.preprocessing.mesh.TrimeshToPly
+          _target_: polpo.preprocessing.mesh.TrimeshToPly
           dirname: ./results/registered

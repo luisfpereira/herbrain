@@ -1,20 +1,20 @@
 hormones_mesh:
-  _target_: dash_gi.models.SklearnLikeModelFactory
+  _target_: polpo.models.SklearnLikeModelFactory
   model:
-    _target_: dash_gi.models.VertexBasedMeshRegressor
+    _target_: polpo.models.VertexBasedMeshRegressor
     vertex_model:
       _target_: geomstats.learning._sklearn.LinearRegression
   data:
     - ${data:hormones_for_pred}
     - ${data:meshes}
   pipeline:
-    _target_: dash_gi.preprocessing.Pipeline
+    _target_: polpo.preprocessing.Pipeline
     steps:
-      - _target_: dash_gi.preprocessing.HashMerger
-      - _target_: dash_gi.preprocessing.NestingSwapper
-      - _target_: dash_gi.preprocessing.IndexMap
+      - _target_: polpo.preprocessing.HashMerger
+      - _target_: polpo.preprocessing.NestingSwapper
+      - _target_: polpo.preprocessing.IndexMap
         index: 0
         step:
-          _target_: dash_gi.preprocessing.Map
+          _target_: polpo.preprocessing.Map
           step:
-            _target_: dash_gi.preprocessing.DictToValues
+            _target_: polpo.preprocessing.DictToValues

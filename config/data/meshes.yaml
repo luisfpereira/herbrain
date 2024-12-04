@@ -1,23 +1,23 @@
 meshes: # outputs dict of meshes (hash is sessionID)
-  _target_: dash_gi.preprocessing.Pipeline
+  _target_: polpo.preprocessing.Pipeline
   steps:
-    - _target_: dash_gi.preprocessing.path.FileFinder
+    - _target_: polpo.preprocessing.path.FileFinder
       data_dir: /home/luisfpereira/data/adele/pregnancy/1_preprocess/d_reparameterized
       rules:
-        - _target_: dash_gi.preprocessing.path.FileRule
+        - _target_: polpo.preprocessing.path.FileRule
           value: .ply
           func: endswith
-    - _target_: dash_gi.preprocessing.Sorter
-    - _target_: dash_gi.preprocessing.ParallelPipeline
+    - _target_: polpo.preprocessing.Sorter
+    - _target_: polpo.preprocessing.ParallelPipeline
       pipelines:
-        - _target_: dash_gi.preprocessing.Map
+        - _target_: polpo.preprocessing.Map
           step:
-            _target_: dash_gi.preprocessing.Pipeline
+            _target_: polpo.preprocessing.Pipeline
             steps:
-              - _target_: dash_gi.preprocessing.path.PathShortener
-              - _target_: dash_gi.preprocessing.str.DigitFinder
+              - _target_: polpo.preprocessing.path.PathShortener
+              - _target_: polpo.preprocessing.str.DigitFinder
                 index: 1
-        - _target_: dash_gi.preprocessing.Map
+        - _target_: polpo.preprocessing.Map
           step:
-            _target_: dash_gi.preprocessing.mesh.TrimeshReader
-    - _target_: dash_gi.preprocessing.Hash
+            _target_: polpo.preprocessing.mesh.TrimeshReader
+    - _target_: polpo.preprocessing.Hash

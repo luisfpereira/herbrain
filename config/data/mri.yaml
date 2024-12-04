@@ -1,23 +1,23 @@
 mri:
-  _target_: dash_gi.preprocessing.Pipeline
+  _target_: polpo.preprocessing.Pipeline
   steps:
-    - _target_: dash_gi.preprocessing.path.FileFinder
+    - _target_: polpo.preprocessing.path.FileFinder
       data_dir: "/home/luisfpereira/data/pregnancy/folder1"
-    - _target_: dash_gi.preprocessing.Map
+    - _target_: polpo.preprocessing.Map
       step:
-        _target_: dash_gi.preprocessing.path.FileFinder
+        _target_: polpo.preprocessing.path.FileFinder
         rules:
-          - _target_: dash_gi.preprocessing.path.FileRule
+          - _target_: polpo.preprocessing.path.FileRule
             value: BrainNormalized
-          - _target_: dash_gi.preprocessing.path.FileRule
+          - _target_: polpo.preprocessing.path.FileRule
             value: .nii.gz
             func: endswith
         warn: false
-    - _target_: dash_gi.preprocessing.Sorter
-    - _target_: dash_gi.preprocessing.Truncater # for debugging
+    - _target_: polpo.preprocessing.Sorter
+    - _target_: polpo.preprocessing.Truncater # for debugging
       value: 2
-    - _target_: dash_gi.preprocessing.Map
+    - _target_: polpo.preprocessing.Map
       n_jobs: 1
       verbose: 1
       step:
-        _target_: dash_gi.preprocessing.mri.MriImageLoader
+        _target_: polpo.preprocessing.mri.MriImageLoader

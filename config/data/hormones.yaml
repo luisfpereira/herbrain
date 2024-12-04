@@ -1,27 +1,27 @@
 hormones: # outputs df; may contain None
-  _target_: dash_gi.preprocessing.Pipeline
+  _target_: polpo.preprocessing.Pipeline
   steps:
-    - _target_: dash_gi.preprocessing.pd.CsvReader
+    - _target_: polpo.preprocessing.pd.CsvReader
       path: "/home/luisfpereira/data/pregnancy/28Baby_Hormones.csv"
     - _target_: project_pregnancy.app.data_processing.ManipulateDf
 
 hormones_gest_week: # # outputs dict
-  _target_: dash_gi.preprocessing.Pipeline
+  _target_: polpo.preprocessing.Pipeline
   data: ${data:hormones}
   steps:
-    - _target_: dash_gi.preprocessing.pd.ColumnSelector
+    - _target_: polpo.preprocessing.pd.ColumnSelector
       column_name: gestWeek
-    - _target_: dash_gi.preprocessing.pd.SeriesToDict
+    - _target_: polpo.preprocessing.pd.SeriesToDict
 
 hormones_for_pred: # outputs dict
-  _target_: dash_gi.preprocessing.Pipeline
+  _target_: polpo.preprocessing.Pipeline
   data: ${data:hormones}
   steps:
-    - _target_: dash_gi.preprocessing.pd.ColumnsSelector
+    - _target_: polpo.preprocessing.pd.ColumnsSelector
       column_names: # TODO: connect with sliders?
         - estro
         - prog
         - lh
-    - _target_: dash_gi.preprocessing.pd.Dropna
-    - _target_: dash_gi.preprocessing.pd.DfToDict
+    - _target_: polpo.preprocessing.pd.Dropna
+    - _target_: polpo.preprocessing.pd.DfToDict
       orient: index

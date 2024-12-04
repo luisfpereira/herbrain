@@ -12,9 +12,10 @@ Notes on Dash:
 import dash_bootstrap_components as dbc
 import hydra
 from dash import Dash, Input, Output, callback, html
-from dash_gi.config import load_data, load_models, load_variables
-from dash_gi.style import update_style
 from hydra.utils import instantiate
+from polpo.dash.hydra import load_variables
+from polpo.dash.style import update_style
+from polpo.hydra import load_data, load_models
 
 import project_pregnancy.app.page_content as page_content
 from project_pregnancy.app.registry import PAGES
