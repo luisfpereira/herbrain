@@ -3,6 +3,10 @@ model:
   _target_: polpo.models.VertexBasedMeshRegressor
   model:
     _target_: sklearn.linear_model.LinearRegression
+  x_scaler:
+    _target_: sklearn.preprocessing.StandardScaler
+    with_mean: True
+    with_std: True
 data:
   - ${data:hormones_gest_week}
   - ${data:meshes}

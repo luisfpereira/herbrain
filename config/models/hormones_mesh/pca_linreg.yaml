@@ -6,6 +6,10 @@ model:
   dim_reduction:
     _target_: sklearn.decomposition.PCA
     n_components: 4
+  x_scaler:
+    _target_: sklearn.preprocessing.StandardScaler
+    with_mean: True
+    with_std: True
 data:
   - ${data:hormones_for_pred}
   - ${data:meshes}
