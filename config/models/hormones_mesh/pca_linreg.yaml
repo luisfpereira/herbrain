@@ -1,8 +1,11 @@
 _target_: polpo.models.SklearnLikeModelFactory
 model:
-  _target_: polpo.models.VertexBasedMeshRegressor
+  _target_: polpo.models.DimReductionBasedMeshRegressor
   model:
     _target_: geomstats.learning._sklearn.LinearRegression
+  dim_reduction:
+    _target_: sklearn.decomposition.PCA
+    n_components: 4
 data:
   - ${data:hormones_for_pred}
   - ${data:meshes}
