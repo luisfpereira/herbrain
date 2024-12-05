@@ -2,7 +2,7 @@ hormones_mesh:
   _target_: polpo.models.SklearnLikeModelFactory
   model:
     _target_: polpo.models.VertexBasedMeshRegressor
-    vertex_model:
+    model:
       _target_: geomstats.learning._sklearn.LinearRegression
   data:
     - ${data:hormones_for_pred}
