@@ -17,8 +17,8 @@ from polpo.dash.hydra import load_variables
 from polpo.dash.style import update_style
 from polpo.hydra import load_data, load_models
 
-import project_pregnancy.app.page_content as page_content
-from project_pregnancy.app.registry import PAGES
+import herbrain.pregnancy.page_content as page_content
+from herbrain.pregnancy.registry import PAGES
 
 
 @callback(Output("page-content", "children"), [Input("url", "pathname")])
@@ -41,7 +41,7 @@ def render_page_content(pathname):
     )
 
 
-@hydra.main(version_base=None, config_path="./config", config_name="config")
+@hydra.main(version_base=None, config_path="config", config_name="config")
 def my_app(cfg):
     style = cfg.style
     update_style(style)
@@ -75,7 +75,3 @@ def my_app(cfg):
         host=server_cfg.host,
         port=server_cfg.port,
     )
-
-
-if __name__ == "__main__":
-    my_app()

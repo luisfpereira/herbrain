@@ -6,7 +6,7 @@ hormones: # outputs df; may contain None
       remote_path: /home/data/pregnancy/28Baby_Hormones.csv
       recursive: false
     - _target_: polpo.preprocessing.pd.CsvReader
-    - _target_: project_pregnancy.app.data_processing.ManipulateDf
+    - _target_: herbrain.pregnancy.data_processing.ManipulateDf
 
 hormones_gest_week: # # outputs dict
   _target_: polpo.preprocessing.Pipeline
