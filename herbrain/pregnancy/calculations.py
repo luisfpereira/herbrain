@@ -1,9 +1,7 @@
 """Functions perform calculations necessary for the dash app."""
 
 import os
-import random
 
-import matplotlib.pyplot as plt
 import numpy as np
 import plotly.graph_objects as go
 from sklearn.decomposition import PCA
@@ -12,14 +10,8 @@ from sklearn.metrics import r2_score
 
 os.environ["GEOMSTATS_BACKEND"] = "pytorch"  # noqa: E402
 import geomstats.backend as gs
-import nibabel as nib
-import pandas as pd
 
-import project_pregnancy.default_config as default_config
-import src.datasets.utils as data_utils
-import src.viz as viz
-from src.preprocessing import smoothing
-from src.regression import training
+from herbrain.preprocessing import smoothing
 
 
 def train_lr_model(X, mesh_sequence_vertices, n_X, p_values=False):
