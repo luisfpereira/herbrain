@@ -1,0 +1,115 @@
+# TODO: make it robust to failures during time consuming procedures
+
+data_loader:
+  _target_: polpo.preprocessing.PipelineDataLoader
+  pipeline:
+    _target_: polpo.preprocessing.Pipeline
+    steps:
+      # get image paths
+      - _target_: polpo.preprocessing.path.FileFinder
+        data_dir: "/home/luisfpereira/data/pregnancy/Segmentations"
+      - _target_: polpo.preprocessing.Map
+        step:
+          _target_: polpo.preprocessing.path.FileFinder
+          rules:
+            - _target_: polpo.preprocessing.path.FileRule
+              value: left
+              func: startswith
+            - _target_: polpo.preprocessing.path.FileRule
+              value: .nii.gz
+              func: endswith
+          warn: false
+      - _target_: polpo.preprocessing.EmptyRemover
+      - _target_: polpo.preprocessing.Sorter
+      # - _target_: polpo.preprocessing.Truncater # for debugging
+      #   value: 1
+      # get meshes
+      - _target_: polpo.preprocessing.ParallelPipeline
+        pipelines:
+          - _target_: polpo.preprocessing.Map
+            step:
+              _target_: polpo.preprocessing.path.PathShortener
+          - _target_: polpo.preprocessing.Pipeline
+            steps:
+              - _target_: polpo.preprocessing.Map
+                n_jobs: 5
+                verbose: 1
+                step:
+                  _target_: polpo.preprocessing.Pipeline
+                  # individual preprocessing
+                  steps:
+                    - _target_: polpo.preprocessing.mri.MriImageLoader
+                    - _target_: polpo.preprocessing.mri.MeshExtractorFromSegmentedImage
+                      structure_id: -1
+                    - _target_: polpo.preprocessing.mesh.TrimeshFromData
+                    - _target_: polpo.preprocessing.mesh.MeshCenterer
+                    - _target_: polpo.preprocessing.mesh.TrimeshFaceRemoverByArea
+                      threshold: 0.01
+                    - _target_: polpo.preprocessing.mesh.MeshScaler
+                      scaling_factor: 20.0
+                    # - _target_: polpo.preprocessing.TrimeshDecimator
+                    #   percent: 0.1
+                    - _target_: polpo.preprocessing.mesh.TrimeshToData
+                    - _target_: polpo.preprocessing.mesh.FastSimplificationDecimator
+                      target_reduction: 0.9
+                    # TODO: add a color-based rotation registration before any other
+                    # registration? e.g. based on rigid alignment of color centroids
+              # register meshes
+              - _target_: polpo.preprocessing.TupleWithIncoming
+                step:
+                  _target_: polpo.preprocessing.IndexSelector
+                  index: 0
+                  repeat: true
+              - _target_: polpo.preprocessing.Map
+                # TODO: how to avoid reparametrize agains self? (add verification in aligner)
+                n_jobs: 5
+                verbose: 1
+                step:
+                  _target_: polpo.preprocessing.Pipeline
+                  steps:
+                    # - _target_: polpo.preprocessing.mesh.H2MeshAligner
+                    #   a0: 0.01
+                    #   a1: 10.0
+                    #   b1: 10.0
+                    #   c1: 1.0
+                    #   d1: 0.0
+                    #   a2: 1.0
+                    #   resolutions: 0
+                    #   paramlist:
+                    #     - weight_coef_dist_T: 10e1 # target varifold term
+                    #       weight_coef_dist_S: 10e1 # source varifold term
+                    #       sig_geom: 0.4
+                    #       max_iter: 1000 # bfgs gets really close really fast and someX
+                    #       # worth letting it run for a bunch of iterations + see scipy,
+                    #       # esp stopping condition to get decent figures
+                    #       time_steps: 2
+                    #       tri_unsample: false
+                    #       index: 0 # spatial resolution, should increase everytime we to a trip_upsample.
+                    #     - weight_coef_dist_T: 10e5 # increase exponentially bcs in SNRF orignal code they had it and it works
+                    #       weight_coef_dist_S: 10e5
+                    #       sig_geom: 0.1
+                    #       max_iter: 1000
+                    #       time_steps: 3
+                    #       tri_unsample: false
+                    #       index: 0
+                    #       # important to have varifold term with high weight,
+                    #       # to be sure that source + target are close to data.
+                    #       # as the match gets better, the varifold terms are decreasing exponetially,
+                    #       # thus we compensate back with the weights.
+                    #       # could do 10**1 and 10**5 if we're only doing two parameters.
+                    #       # e.g. with 3 parameters, emmanuel did: 10**1, 10**5, 10**10
+                    #       # e.g. corresponding sig_geom: 0.4, 0.1, 0.025
+                    #     - weight_coef_dist_T: 10e10
+                    #       weight_coef_dist_S: 10e10
+                    #       sig_geom: 0.025
+                    #       max_iter: 2000
+                    #       time_steps: 5
+                    #       tri_unsample: false
+                    #       index: 0
+                    - _target_: polpo.preprocessing.mesh.IdentityMeshAligner
+                    - _target_: polpo.preprocessing.mesh.TrimeshFromData
+      # save results
+      - _target_: polpo.preprocessing.Map
+        step:
+          _target_: polpo.preprocessing.mesh.TrimeshToPly
+          dirname: ./results/registered

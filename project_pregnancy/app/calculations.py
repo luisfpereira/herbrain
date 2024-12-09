@@ -17,12 +17,9 @@ import pandas as pd
 
 import project_pregnancy.default_config as default_config
 import src.datasets.utils as data_utils
-import src.setcwd
 import src.viz as viz
 from src.preprocessing import smoothing
 from src.regression import training
-
-src.setcwd.main()
 
 
 def train_lr_model(X, mesh_sequence_vertices, n_X, p_values=False):
@@ -177,11 +174,16 @@ def plot_slice_as_plotly(
     return fig
 
 
-def return_nii_plot(sess_number, x, y, z, raw_mri_dict):  # week,
+def return_nii_plot(
+    raw_mri_datum,
+    x,
+    y,
+    z,
+):  # week,
     """Return the nii plot based on the week and the x, y, z coordinates."""
-    slice_0 = raw_mri_dict[sess_number][x, :, :]
-    slice_1 = raw_mri_dict[sess_number][:, y, :]
-    slice_2 = raw_mri_dict[sess_number][:, :, z]
+    slice_0 = raw_mri_datum[x, :, :]
+    slice_1 = raw_mri_datum[:, y, :]
+    slice_2 = raw_mri_datum[:, :, z]
 
     common_width = max(len(slice_0[:, 0]), len(slice_1[:, 0]), len(slice_2[:, 0]))
     common_height = max(len(slice_0[0]), len(slice_1[0]), len(slice_2[0]))

@@ -1,0 +1,3 @@
+defaults:
+  - week_mesh: pca_linreg
+  - hormones_mesh: pca_linreg

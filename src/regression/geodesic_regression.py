@@ -31,7 +31,7 @@ import sympy as sp
 import torch
 from geomstats.geometry.euclidean import Euclidean
 from geomstats.learning.frechet_mean import FrechetMean
-from geomstats.numerics.optimizers import ScipyMinimize
+from geomstats.numerics.optimization import ScipyMinimize
 from scipy.optimize import OptimizeResult
 from sklearn.base import BaseEstimator
 

@@ -1,0 +1,4 @@
+defaults:
+  - mri
+  - hormones
+  - meshes

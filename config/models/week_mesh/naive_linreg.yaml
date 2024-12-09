@@ -1,0 +1,23 @@
+_target_: polpo.models.SklearnLikeModelFactory
+model:
+  _target_: polpo.models.VertexBasedMeshRegressor
+  model:
+    _target_: sklearn.linear_model.LinearRegression
+  x_scaler:
+    _target_: sklearn.preprocessing.StandardScaler
+    with_mean: True
+    with_std: True
+data:
+  - ${data:hormones_gest_week}
+  - ${data:meshes}
+pipeline:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.HashMerger
+    - _target_: polpo.preprocessing.NestingSwapper
+    - _target_: polpo.preprocessing.IndexMap
+      index: 0
+      step:
+        _target_: polpo.preprocessing.Map
+        step:
+          _target_: polpo.preprocessing.ToList
