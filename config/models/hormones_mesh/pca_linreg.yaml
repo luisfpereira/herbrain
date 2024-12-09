@@ -2,7 +2,7 @@ _target_: polpo.models.SklearnLikeModelFactory
 model:
   _target_: polpo.models.DimReductionBasedMeshRegressor
   model:
-    _target_: geomstats.learning._sklearn.LinearRegression
+    _target_: sklearn.linear_model.LinearRegression
   dim_reduction:
     _target_: sklearn.decomposition.PCA
     n_components: 4
