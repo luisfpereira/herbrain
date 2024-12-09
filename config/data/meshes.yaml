@@ -1,8 +1,12 @@
 meshes: # outputs dict of meshes (hash is sessionID)
   _target_: polpo.preprocessing.Pipeline
   steps:
+    - _target_: polpo.preprocessing.ssh.SCPDownloadbleData
+      host_name: frank
+      remote_path: /home/data/pregnancy/adele/1_preprocess/d_reparameterized
+      recursive: true
+    # TODO: download only required files?
     - _target_: polpo.preprocessing.path.FileFinder
-      data_dir: /home/luisfpereira/data/adele/pregnancy/1_preprocess/d_reparameterized
       rules:
         - _target_: polpo.preprocessing.path.FileRule
           value: .ply

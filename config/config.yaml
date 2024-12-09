@@ -10,7 +10,7 @@ server:
   port: "8050"
 
 app:
-  assets_folder: /home/luisfpereira/Repos/github/herbrain/project_pregnancy/assets
+  assets_folder: ./project_pregnancy/assets
   title: "herbrain"
 
 style:
