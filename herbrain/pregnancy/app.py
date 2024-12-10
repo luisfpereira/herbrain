@@ -10,7 +10,6 @@ Notes on Dash:
 """
 
 import dash_bootstrap_components as dbc
-import hydra
 from dash import Dash, Input, Output, callback, html
 from hydra.utils import instantiate
 from polpo.dash.hydra import load_variables
@@ -41,7 +40,6 @@ def render_page_content(pathname):
     )
 
 
-@hydra.main(version_base=None, config_path="config", config_name="config")
 def my_app(cfg):
     style = cfg.style
     update_style(style)
