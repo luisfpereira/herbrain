@@ -1,0 +1,28 @@
+hormones: # outputs df; may contain None
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.ssh.SCPDataLoader
+      data_dir: ~/.herbrain/data/menstrual
+      host_name: frank
+      remote_path: /home/data/menstrual/hormones.csv
+      recursive: false
+    - _target_: polpo.preprocessing.pd.CsvReader
+    - _target_: polpo.preprocessing.pd.IndexSetter
+      key: dayID
+
+hormones_for_pred: # outputs dict
+  _target_: polpo.preprocessing.Pipeline
+  data: ${data:hormones}
+  steps:
+    - _target_: polpo.preprocessing.pd.ColumnsSelector
+      column_names: # TODO: connect with sliders?
+        - Prog
+        - Estro
+        - LH
+        - DHEAS
+        - FSH
+        - SHBG
+    # TODO: check need for this
+    - _target_: polpo.preprocessing.pd.Dropna
+    - _target_: polpo.preprocessing.pd.DfToDict
+      orient: index

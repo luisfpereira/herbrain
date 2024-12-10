@@ -1,0 +1,28 @@
+meshes: # outputs dict of meshes (hash is sessionID)
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.ssh.SCPDataLoader
+      data_dir: ~/.herbrain/data/menstrual
+      host_name: frank
+      remote_path: /home/data/menstrual/meshes_adele/d_reparameterized
+      recursive: true
+    # TODO: download only required files?
+    - _target_: polpo.preprocessing.path.FileFinder
+      rules:
+        - _target_: polpo.preprocessing.path.FileRule
+          value: .ply
+          func: endswith
+    - _target_: polpo.preprocessing.Sorter
+    - _target_: polpo.preprocessing.ParallelPipeline
+      pipelines:
+        - _target_: polpo.preprocessing.Map
+          step:
+            _target_: polpo.preprocessing.Pipeline
+            steps:
+              - _target_: polpo.preprocessing.path.PathShortener
+              - _target_: polpo.preprocessing.str.DigitFinder
+                index: 1
+        - _target_: polpo.preprocessing.Map
+          step:
+            _target_: polpo.preprocessing.mesh.TrimeshReader
+    - _target_: polpo.preprocessing.Hash

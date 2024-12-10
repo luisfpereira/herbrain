@@ -27,7 +27,7 @@ Or the classic pipeline: `clone + pip install .`
 Once you install the package and download the data, run
 
 ```bash
-python -m herbrain
+python -m herbrain <app-name>
 ```
 
 You can always get some help by doing
