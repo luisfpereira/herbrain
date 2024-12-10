@@ -3,7 +3,7 @@ hormones: # outputs df; may contain None
   steps:
     - _target_: polpo.preprocessing.ssh.SCPDownloadbleData
       host_name: frank
-      remote_path: /home/data/pregnancy/28Baby_Hormones.csv
+      remote_path: /home/data/pregnancy/raw/28Baby_Hormones.csv
       recursive: false
     - _target_: polpo.preprocessing.pd.CsvReader
     - _target_: herbrain.pregnancy.data_processing.ManipulateDf
