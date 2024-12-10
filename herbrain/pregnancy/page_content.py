@@ -423,6 +423,20 @@ def ai_hormone_prediction(mesh_explorer):
             html.Hr(),
             instructions_title(),
             html.Div(style={"height": S.space_between_title_and_content}),
+            dbc.Row(
+                [
+                    html.P(
+                        [
+                            "Use the hormone sliders or the gestational week slider to adjust observe the predicted shape changes in the left hippocampal formation.",
+                            html.Br(),
+                        ],
+                        style={
+                            "fontSize": S.text_fontsize,
+                            "fontFamily": S.text_fontfamily,
+                        },
+                    ),
+                ],
+            ),
         ]
         + mesh_explorer.to_dash()
         + [

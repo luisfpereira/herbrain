@@ -109,35 +109,38 @@ mri_explorer:
         var_def: ${var:trimester}
 
 mesh_explorer:
-  _target_: polpo.dash.components.MeshExplorer
-  week_mesh_model: ${model:week_mesh}
-  hormones_mesh_model: ${model:hormones_mesh}
+  _target_: polpo.dash.components.MultipleModelsMeshExplorer
   graph:
     _target_: polpo.dash.components.Graph
     id_: mesh-plot
     plotter:
       _target_: polpo.plot.MeshPlotter
-  hormone_sliders:
-    _target_: polpo.dash.components.ComponentGroup
-    components:
-      - _target_: polpo.dash.components.Slider
-        var_def: ${var:estro}
-        step: 500
-        label_style:
-          fontSize: 30
-          display: "block"
-      - _target_: polpo.dash.components.Slider
-        var_def: ${var:prog}
-        step: 3
-        label_style:
-          fontSize: 30
-          display: "block"
-      - _target_: polpo.dash.components.Slider
-        var_def: ${var:lh}
-        step: 0.05
-        label_style:
-          fontSize: 30
-          display: "block"
-  week_sliders:
-    _target_: polpo.dash.components.Slider
-    var_def: ${var:gestWeek}
+  models:
+    - ${model:week_mesh}
+    - ${model:hormones_mesh}
+  inputs:
+    # week
+    - _target_: polpo.dash.components.Slider
+      var_def: ${var:gestWeek}
+    # hormones
+    - _target_: polpo.dash.components.ComponentGroup
+      components:
+        - _target_: polpo.dash.components.Slider
+          var_def: ${var:estro}
+          step: 500
+          label_style:
+            fontSize: 30
+            display: "block"
+        - _target_: polpo.dash.components.Slider
+          var_def: ${var:prog}
+          step: 3
+          label_style:
+            fontSize: 30
+            display: "block"
+        - _target_: polpo.dash.components.Slider
+          var_def: ${var:lh}
+          step: 0.05
+          label_style:
+            fontSize: 30
+            display: "block"
+  button_label: Click Here to Toggle Between Gestational Week vs Hormone Value Prediction
