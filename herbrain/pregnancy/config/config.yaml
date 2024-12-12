@@ -66,6 +66,10 @@ variables:
   mri_z:
     _target_: polpo.dash.variables.VarDef
     name: Z Coordinate (Changes Top View)
+  hormones_ordering:
+    - estro
+    - prog
+    - lh
 
 mri_explorer:
   id_prefix: mri-
@@ -124,6 +128,7 @@ mesh_explorer:
       var_def: ${var:gestWeek}
     # hormones
     - _target_: polpo.dash.components.ComponentGroup
+      ordering: ${var:hormones_ordering}
       components:
         - _target_: polpo.dash.components.Slider
           var_def: ${var:estro}

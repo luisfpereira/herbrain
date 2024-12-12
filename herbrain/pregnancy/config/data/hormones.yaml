@@ -22,10 +22,7 @@ hormones_for_pred: # outputs dict
   data: ${data:hormones}
   steps:
     - _target_: polpo.preprocessing.pd.ColumnsSelector
-      column_names: # TODO: connect with sliders?
-        - estro
-        - prog
-        - lh
+      column_names: ${var:hormones_ordering}
     - _target_: polpo.preprocessing.pd.Dropna
     - _target_: polpo.preprocessing.pd.DfToDict
       orient: index

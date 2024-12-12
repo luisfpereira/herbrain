@@ -58,6 +58,13 @@ variables:
     unit: ng/ml
     min_value: 0
     max_value: 70
+  hormones_ordering:
+    - Prog
+    - Estro
+    - LH
+    - DHEAS
+    - FSH
+    - SHBG
 
 mesh_explorer:
   _target_: polpo.dash.components.MeshExplorer
@@ -70,6 +77,7 @@ mesh_explorer:
   inputs:
     # TODO: add p-values to variables?
     _target_: polpo.dash.components.ComponentGroup
+    ordering: ${var:hormones_ordering}
     components:
       - _target_: polpo.dash.components.Slider
         var_def: ${var:Prog}

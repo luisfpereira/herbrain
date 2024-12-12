@@ -15,13 +15,7 @@ hormones_for_pred: # outputs dict
   data: ${data:hormones}
   steps:
     - _target_: polpo.preprocessing.pd.ColumnsSelector
-      column_names: # TODO: connect with sliders?
-        - Prog
-        - Estro
-        - LH
-        - DHEAS
-        - FSH
-        - SHBG
+      column_names: ${var:hormones_ordering}
     # TODO: check need for this
     - _target_: polpo.preprocessing.pd.Dropna
     - _target_: polpo.preprocessing.pd.DfToDict
