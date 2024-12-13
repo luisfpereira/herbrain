@@ -118,7 +118,7 @@ mesh_explorer:
     _target_: polpo.dash.components.Graph
     id_: mesh-plot
     plotter:
-      _target_: polpo.plot.MeshPlotter
+      _target_: polpo.plot.mesh.MeshPlotter
   models:
     - ${model:week_mesh}
     - ${model:hormones_mesh}
