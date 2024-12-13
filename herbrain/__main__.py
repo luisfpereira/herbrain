@@ -19,7 +19,7 @@ def _launch_app(my_app, overrides, config_path, config_name, logging_level):
 @app.command()
 def pregnancy_app(
     overrides: Optional[List[str]] = typer.Argument(None),
-    config_path: str = "pregnancy/config",
+    config_path: str = "config/pregnancy",
     config_name: str = "config",
     logging_level: int = 20,
 ):
@@ -32,7 +32,7 @@ def pregnancy_app(
 @app.command()
 def menstrual_app(
     overrides: Optional[List[str]] = typer.Argument(None),
-    config_path: str = "menstrual/config",
+    config_path: str = "config/menstrual",
     config_name: str = "config",
     logging_level: int = 20,
 ):
