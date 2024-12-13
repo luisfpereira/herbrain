@@ -2,6 +2,7 @@ defaults:
   - _self_
   - data: data
   - models: models
+  - variables
 
 server:
   debug: true
@@ -20,56 +21,6 @@ style:
   title_fontsize: 40px
   space_between_sections: 70px
   space_between_title_and_content: 30px
-
-variables:
-  estro:
-    _target_: polpo.dash.variables.VarDef
-    name: Estrogen
-    unit: pg/ml
-    min_value: 4100
-    max_value: 12400
-  prog:
-    _target_: polpo.dash.variables.VarDef
-    name: Progesteron
-    unit: ng/ml
-    min_value: 54
-    max_value: 103
-  lh:
-    _target_: polpo.dash.variables.VarDef
-    name: LH
-    unit: ng/ml
-    min_value: 0.59
-    max_value: 1.45
-  gestWeek:
-    _target_: polpo.dash.variables.VarDef
-    name: Gestational Week
-    min_value: 0
-    max_value: 36
-    default_value: 15
-  EndoStatus:
-    _target_: polpo.dash.variables.VarDef
-    name: Pregnancy status
-  trimester:
-    _target_: polpo.dash.variables.VarDef
-    name: Trimester
-  sessionID:
-    _target_: polpo.dash.variables.VarDef
-    name: Session Number
-    min_value: 1
-    max_value: 26
-  mri_x:
-    _target_: polpo.dash.variables.VarDef
-    name: X Coordinate (Changes Side View)
-  mri_y:
-    _target_: polpo.dash.variables.VarDef
-    name: Y Coordinate (Changes Front View)
-  mri_z:
-    _target_: polpo.dash.variables.VarDef
-    name: Z Coordinate (Changes Top View)
-  hormones_ordering:
-    - estro
-    - prog
-    - lh
 
 mri_explorer:
   id_prefix: mri-
