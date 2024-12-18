@@ -19,7 +19,12 @@ Visual on thumbnail slide taken from: Caitlin M Taylor, Laura Pritschet, and Emi
 pip install git+https://github.com/geometric-intelligence/herbrain.git@main#egg=herbrain[app]
 ```
 
-Or the classic pipeline: `clone + pip install .`
+Or the classic pipeline: git clone and:
+```bash
+conda create -n herbrain python=3.11
+conda activate herbrain
+pip install .[app]
+```
 
 
 ## 🏃‍♀️ How to Run the Code ##
