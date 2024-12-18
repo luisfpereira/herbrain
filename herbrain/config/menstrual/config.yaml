@@ -1,0 +1,73 @@
+defaults:
+  - _self_
+  - data: data
+  - models: models
+  - variables
+
+server:
+  debug: true
+  use_reloader: false
+  host: "0.0.0.0"
+  port: "8050"
+
+style:
+  margin_side: 20px
+  text_fontsize: 24px
+  text_fontfamily: Avenir
+  title_fontsize: 40px
+  space_between_sections: 70px
+  space_between_title_and_content: 30px
+
+app:
+  # assets_folder: ./assets
+  title: "herbrain"
+
+mesh_explorer:
+  _target_: polpo.dash.components.MeshExplorer
+  model: ${model:hormones_mesh}
+  graph:
+    _target_: polpo.dash.components.Graph
+    id_: mesh-plot
+    plotter:
+      _target_: polpo.plot.mesh.MeshPlotter
+  inputs:
+    # TODO: add p-values to variables?
+    _target_: polpo.dash.components.ComponentGroup
+    ordering: ${var:hormones_ordering}
+    components:
+      - _target_: polpo.dash.components.Slider
+        var_def: ${var:Prog}
+        step: 1
+        label_style:
+          fontSize: 30
+          display: "block"
+      - _target_: polpo.dash.components.Slider
+        var_def: ${var:Estro}
+        step: 10
+        label_style:
+          fontSize: 30
+          display: "block"
+      - _target_: polpo.dash.components.Slider
+        var_def: ${var:LH}
+        step: 10
+        label_style:
+          fontSize: 30
+          display: "block"
+      - _target_: polpo.dash.components.Slider
+        var_def: ${var:DHEAS}
+        step: 10
+        label_style:
+          fontSize: 30
+          display: "block"
+      - _target_: polpo.dash.components.Slider
+        var_def: ${var:FSH}
+        step: 1
+        label_style:
+          fontSize: 30
+          display: "block"
+      - _target_: polpo.dash.components.Slider
+        var_def: ${var:SHBG}
+        step: 5
+        label_style:
+          fontSize: 30
+          display: "block"

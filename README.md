@@ -15,23 +15,27 @@ Visual on thumbnail slide taken from: Caitlin M Taylor, Laura Pritschet, and Emi
 
 ## 🤖 Installing HerBrain
 
-1. Clone a copy of `herbrain` from source:
 ```bash
-git clone https://github.com/geometric-intelligence/herbrain
-cd herbrain
+pip install git+https://github.com/geometric-intelligence/herbrain.git@main#egg=herbrain[app]
 ```
-2. Create an environment with python >= 3.10
+
+Or the classic pipeline: `clone + pip install .`
+
+
+## 🏃‍♀️ How to Run the Code ##
+
+Once you install the package and download the data, run
+
 ```bash
-conda create -n herbrain python=3.10
+python -m herbrain <app-name>
 ```
-3. Install `herbrain` in editable mode (requires pip ≥ 21.3 for [PEP 660](https://peps.python.org/pep-0610/) support):
+
+You can always get some help by doing
+
 ```bash
-pip install -e .[all]
+python -m herbrain --help
 ```
-4. Install pre-commit hooks:
-```bash
-pre-commit install
-```
+
 
 ## 🌎 Bibtex ##
 If this code is useful to your research, please cite:
@@ -47,45 +51,7 @@ If this code is useful to your research, please cite:
 }
 ```
 
-## 🏃‍♀️ How to Run the Code ##
-
-Once you download the data,
-
-1. Choose whether to launch pregnancy or menstrual cycle app. Pregnancy app is in the `project_pregnancy` folder, and menstrual app is in the `project_menstrual` folder.
-2. Run the `main_3_dash_app.py` file by running:
-
-```
-python main_3_dash_app.py
-```
-
 ## 👩‍🔧 Authors ##
 [Adele Myers](https://ahma2017.wixsite.com/adelemyers)
 
 [Nina Miolane](https://www.ninamiolane.com/)
-
-## How to Set up Your Environment
-
-```shell
-$ conda create -n herbrain --file conda-linux-64.lock
-$ conda activate herbrain
-$ poetry install --no-root
-```
-We use `--no-root` because we don't have a module named `herbrain`
-If you are on Mac, make and use `conda-osx-64.lock` instead.
-
-# Dev
-
-Only run if changes are made to the environment files.
-
-To recreate the conda lock, after modifying conda.yaml:
-```shell
-pip install conda-lock
-make conda-linux-64.lock
-```
-Note that you may need to install conda-lock not in your base env.
-
-To recreate the poetry lock, after modifying pyproject.toml:
-```shell
-make poetry.lock
-```
-
