@@ -13,8 +13,8 @@ meshes: # outputs dict of meshes (hash is sessionID)
           value: .ply
           func: endswith
     - _target_: polpo.preprocessing.Sorter
-    - _target_: polpo.preprocessing.ParallelPipeline
-      pipelines:
+    - _target_: polpo.preprocessing.BranchingPipeline
+      branches:
         - _target_: polpo.preprocessing.Map
           step:
             _target_: polpo.preprocessing.Pipeline
@@ -24,5 +24,5 @@ meshes: # outputs dict of meshes (hash is sessionID)
                 index: 1
         - _target_: polpo.preprocessing.Map
           step:
-            _target_: polpo.preprocessing.mesh.TrimeshReader
+            _target_: polpo.preprocessing.mesh.io.TrimeshReader
     - _target_: polpo.preprocessing.Hash
