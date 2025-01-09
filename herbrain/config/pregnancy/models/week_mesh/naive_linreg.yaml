@@ -13,7 +13,7 @@ data:
 pipeline:
   _target_: polpo.preprocessing.Pipeline
   steps:
-    - _target_: polpo.preprocessing.HashMerger
+    - _target_: polpo.preprocessing.dict.DictMerger
     - _target_: polpo.preprocessing.NestingSwapper
     - _target_: polpo.preprocessing.IndexMap
       index: 0

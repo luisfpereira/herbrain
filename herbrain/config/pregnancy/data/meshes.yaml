@@ -25,4 +25,4 @@ meshes: # outputs dict of meshes (hash is sessionID)
         - _target_: polpo.preprocessing.Map
           step:
             _target_: polpo.preprocessing.mesh.io.TrimeshReader
-    - _target_: polpo.preprocessing.Hash
+    - _target_: polpo.preprocessing.dict.Hash
