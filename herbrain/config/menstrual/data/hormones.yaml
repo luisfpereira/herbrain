@@ -1,7 +1,7 @@
 hormones: # outputs df; may contain None
   _target_: polpo.preprocessing.Pipeline
   steps:
-    - _target_: polpo.preprocessing.ssh.SCPDataLoader
+    - _target_: polpo.preprocessing.ssh.ScpDataLoader.from_host_name
       data_dir: ~/.herbrain/data/menstrual
       host_name: frank
       remote_path: /home/data/menstrual/hormones.csv
