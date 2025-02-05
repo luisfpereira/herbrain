@@ -6,6 +6,7 @@ model:
   dim_reduction:
     _target_: sklearn.decomposition.PCA
     n_components: 4
+  y_smoother: false
 data:
   - ${data:hormones_gest_week}
   - ${data:meshes}

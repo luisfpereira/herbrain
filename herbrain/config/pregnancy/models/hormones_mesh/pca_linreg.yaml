@@ -10,6 +10,7 @@ model:
     _target_: sklearn.preprocessing.StandardScaler
     with_mean: True
     with_std: True
+  y_smoother: false
 data:
   - ${data:hormones_for_pred}
   - ${data:meshes}

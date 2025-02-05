@@ -20,9 +20,9 @@ mri:
         warn: false
     - _target_: polpo.preprocessing.Sorter
     - _target_: polpo.preprocessing.Truncater # for debugging
-      value: 2
+      value: null
     - _target_: polpo.preprocessing.Map
-      n_jobs: 1
+      n_jobs: -1
       verbose: 1
       step:
         _target_: polpo.preprocessing.mri.MriImageLoader
