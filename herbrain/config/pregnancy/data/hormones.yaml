@@ -7,14 +7,23 @@ hormones: # outputs df; may contain None
       remote_path: /home/data/pregnancy/raw/28Baby_Hormones.csv
       recursive: false
     - _target_: polpo.preprocessing.pd.CsvReader
-    - _target_: herbrain.pregnancy.data_processing.ManipulateDf
+    - _target_: polpo.preprocessing.pd.UpdateColumnValues
+      column_name: sessionID
+      func:
+        _target_: polpo.preprocessing.Lambda
+        string: "lambda entry: int(entry.split('-')[1])"
+    - _target_: polpo.preprocessing.pd.IndexSetter
+      key: sessionID
+      drop: True
+    - _target_: polpo.preprocessing.pd.Drop
+      labels: 27
 
-hormones_gest_week: # # outputs dict
+hormones_gest_week: # outputs dict
   _target_: polpo.preprocessing.Pipeline
   data: ${data:hormones}
   steps:
-    - _target_: polpo.preprocessing.pd.ColumnSelector
-      column_name: gestWeek
+    - _target_: polpo.preprocessing.pd.ColumnsSelector
+      column_names: gestWeek
     - _target_: polpo.preprocessing.pd.SeriesToDict
 
 hormones_for_pred: # outputs dict
