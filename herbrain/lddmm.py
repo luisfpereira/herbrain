@@ -1,3 +1,13 @@
+"""LDDMM functions.
+
+Set of functions that wrap around [deformetrica](
+https://gitlab.com/icm-institute/aramislab/deformetrica) to perform registration, parallel
+transport, geodesic and spline regression with the Large Deformations Diffeomorphic Metric
+Mapping (LDDMM) framework.
+
+For a brief introduction to LDDMM see [NG22](https://hal.science/tel-03563980v1) chapter 5.
+"""
+
 import numpy as np
 import pyvista as pv
 import time
@@ -20,25 +30,94 @@ def registration(
         freeze_control_points=False, use_rk2_for_shoot=False, use_rk2_for_flow=False,
         dimension=3, use_rk4_for_shoot=False, preserve_volume=False, print_every=20,
         filter_cp=False, threshold=1., attachment_kernel_width=4.):
-    """
-    Wrapper to Registration in Deformetrica
-    :param preserve_volume:
-    :param use_rk4_for_shoot:
-    :param dimension:
-    :param use_rk2_for_flow:
-    :param use_rk2_for_shoot:
-    :param source:
-    :param target:
-    :param output_dir:
-    :param kernel_width:
-    :param regularisation:
-    :param number_of_time_steps:
-    :param kernel_type:
-    :param kernel_device:
-    :param use_svf:
-    :param initial_control_points:
-    :param freeze_control_points:
-    :return:
+    r"""Registration
+
+    Estimates the best possible deformation between two shapes, i.e. solves the following
+    optimization problem:
+
+    ..math::
+         C(c, \mu) = \frac{1}{\alpha^2} d(q, \phi_1^{c,\mu}(\bar{q}))^2 + \| v_0^{c,
+         \mu} \|_K^2.
+
+    where $c, \mu$ are the control points and momenta that parametrize the deformation, $v_0^{c,
+    \mu}$ is the associated velocity field defined by the convolution $v_t(x) = \sum_{k=1}^{N_c}
+    K(x, c^{(t)}_k) \mu^{(t)}_K$, K is the Gaussian kernel, $\phi_1^{c,\mu}$ is the flow of $v_t$
+    at time 1, $\bar{q}$ is the source shape being deformed, $q$ is the target shape,
+    and $\alpha$ is a regularization term that controls the tradeoff between exact matching and
+    smoothness of the deformation. $d$ is a distance function on shapes (point-to-point L2,
+    varifold, metric, etc).
+
+    Control points can be passed as parameters or are initialized on a grid that contains the
+    source shapes. They are optimized if `freeze_control_points` is set to false.
+
+    Resulting control points and momenta are saved in the ouput dir as txt files. Control points
+    are also saved with attached momenta as a vtk file to allow visualization with paraview.
+
+
+    Parameters
+    ----------
+    source: str or pathlib.Path
+        Path to the vtk file that contains the source mesh.
+    target: str or pathlib.Path
+        Path to the vtk file that contains the target mesh.
+    output_dir: str or pathlib.Path
+        Path a directory where results will be saved.
+    kernel_width: float
+        Width of the Gaussian kernel. Controls the spatial smoothness of the deformation and
+        influences the number of parameters required to represent the deformation.
+        Optional, default: 20.
+    regularisation: float
+        $\alpha$ in the above equation. Smaller values will yeild larger deformations to reduce
+        the data attachment term, while larger values will allow attachment errors for a smoother
+        deformation.
+        Optional, default: 1.
+    number_of_time_steps: int
+        Number used in the discretization of the flow equation.
+        Optional, default: 11.
+    metric: str, {landmark, varifold, current}
+        Metric to use to measure attachment between meshes. Landmark refers to L2.
+    attachment_kernel_width: float,
+        If using varifold or currents, width of the kernel used in the attachment metric. Defines
+        the scale at which differences must be taken into account.
+    dimension: int {2, 3}
+        Dimension of the shape embedding space.
+    kernel_type: str, {torch, keops}
+        Package to use for convolutions of velocity fields and loss functions.
+    kernel_device: str, {cuda, cpu}
+    use_svf: bool
+        Whether to use stationnary velocity fields insteads of time evolving velocity. The
+        deformation is no longer a geodesic but there is more symmetry wrt source / target.
+        Optional, default: False
+    initial_control_points: str or pathlib.Path
+        Path to the txt file that contains the initial control points.
+        Optional
+    freeze_control_points: bool
+        Wether to optimize control points jointly with momenta.
+        Optional, default: False
+    preserve_volume: bool
+        Whether to use volume preserving deformation. This modifies the metric on deformations.
+        Optional, default: False
+    use_rk2_for_flow: bool
+        Wether to use Runge-Kutta order 2 steps in the integration of the flow equation, i.e. when
+        warping the shape. If False, a Euler step is used.
+        Optional, default: False
+    use_rk2_for_shoot: bool
+        Wether to use Runge-Kutta order 2 steps in the integration of the Hamiltonian equation that
+        governs the time evolution of control points and momenta. If False, a Euler step is used.
+        Optional, default: False
+    use_rk4_for_shoot: bool
+        Wether to use Runge-Kutta order 4 steps in the integration of the Hamiltonian equation that
+        governs the time evolution of control points and momenta. Overrides use_rk2_for_shoot.
+        RK4 steps are required when estimating a geodesic that will be used for parallel transport.
+        Optional, default: False
+    print_every: int
+        Sets the verbosity level of the optimization scheme.
+    filter_cp: bool
+        Whether to filter control points saved in the vtk file to exclude those whose momenum
+        vector is not significative and does not contribute to the deformation.
+        Optional, default: False
+    threshold: float
+        Threshold to use on momenta norm when filtering.
     """
     optimization_parameters = {
         'max_iterations': max_iter,
