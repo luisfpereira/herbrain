@@ -3,6 +3,7 @@ import pyvista as pv
 
 
 def preprocess_full_structure(mesh: pv.DataSet, target_mesh=None):
+    """Align, smooth and decimate mesh."""
     aligned = mesh.align(target_mesh, max_iterations=100)
     new_mesh = aligned.smooth_taubin(n_iter=20)
     target_reduction = 1 - (5000 / mesh.n_points)
@@ -11,6 +12,7 @@ def preprocess_full_structure(mesh: pv.DataSet, target_mesh=None):
 
 
 def add_labels(mesh: pv.DataSet, labels: dict):
+    """Add names of structure on vertices of the mesh."""
     new_mesh = mesh
     labels_df = pd.DataFrame(new_mesh.get_array('RGBA'))
     labels_df['label'] = labels_df.apply(tuple, axis=1).map(labels)
@@ -21,6 +23,7 @@ def add_labels(mesh: pv.DataSet, labels: dict):
 def preprocess_substructure(
         mesh: pv.DataSet, label: str, labels: dict, align=False,
         target_mesh=None):
+    """Align, smooth and decimate mesh of substructure."""
     new_mesh = mesh
     labels_df = pd.DataFrame(new_mesh.get_array('RGBA'))
     labels_df['label'] = labels_df.apply(tuple, axis=1).map(labels)
@@ -50,6 +53,7 @@ def get_ref_labels():
 
 
 def swap_left_right(days, data_dir):
+    """Swap left / right meshes for given days in data_dir."""
     tmp_dir = data_dir / 'tmp'
     tmp_dir.mkdir(exist_ok=True)
     for day in days:
@@ -62,6 +66,15 @@ def swap_left_right(days, data_dir):
 
 
 def main(day_min, day_max, day_ref, side, data_dir, output_dir):
+    """Loop preprocessing over observations between day_min and day_max.
+
+    For each session and a given side (left /right) :
+        - Align, smooth and decimate the whole mesh;
+        - extract substructures;
+        - align, smooth and decimate each substructure.
+
+    Save the results in output_dir, by structure.
+    """
     output_dir.mkdir(exist_ok=True)
     raw_dir = output_dir / 'full_structure' / 'raw'
     raw_dir.mkdir(parents=True, exist_ok=True)

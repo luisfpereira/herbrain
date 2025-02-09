@@ -6,6 +6,11 @@ from strings import cp_str
 def main(
         data_set, times, output_dir, config_id="0", structure="PostHipp",
         registration_args=None, spline_args=None):
+    """Geodesic regression.
+
+    Perform a registration first to estimate control points, then a spline or geodesic
+    regression. See the lddmm module for arguments of the registration and spline regression.
+    """
     if registration_args is None:
         registration_args = {}
     if spline_args is None:

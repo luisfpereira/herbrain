@@ -13,6 +13,36 @@ from strings import residual_str, residual_str_spline, template_str
 def get_data_set(
         data_dir: Path, covariate: pd.DataFrame, hemisphere='left', structure='ERC',
         tmin=0, tmax=10, time_var='gestWeek', day_ref=0, variable='times'):
+    """Generate dataset associated with a configuration.
+
+    A configuration considers all the observations of a structure between two time points
+    (strict inequalities).
+
+    Parameters
+    ----------
+    data_dir: Path
+        Path to main data dir, that contains folders for each structure.
+    covariate: DataFrame
+        Hormones data frame
+    hemisphere: str, {'left', 'right'}
+    structure: str
+        Name of the hippocampus substructure to study
+    tmin: int
+    tmax: int
+    structure: str
+        Name of the structure to use.
+    time_var: str
+        Name of the column that contains the times of the observation in the `covariate` DataFrame.
+    day_ref:
+        Observation time of the shape to use as source
+    variable: str
+        Name of the column to use as covariate in the `covariate` DataFrame
+
+    Returns
+    -------
+    data_set: list of dict {'shape': Path}
+    times: Series of floats
+    """
     data_list = covariate[covariate[structure]]  # remove excluded
     data_list = data_list[
         ((tmin < data_list[time_var]) & (data_list[time_var] < tmax))
@@ -47,7 +77,7 @@ covariates['times'] = covariates.gestWeek / 40
 nice_zones = ["PRC", "PHC", "PostHipp", "CA2+3", "ERC"]
 covariates[nice_zones] = True
 
-# some subregions are not segmented on a few sessions
+# some subregions are not segmented on a few sessions and excluded manually here
 covariates.loc[covariates.sessionID == 'ses-13', 'PostHipp'] = False
 covariates.loc[covariates.sessionID == 'ses-14', 'PostHipp'] = False
 covariates.loc[covariates.sessionID == 'ses-15', nice_zones] = False
