@@ -360,10 +360,15 @@ def transport(
 
     Parameters
     ----------
-    control_points:
-    momenta:
-    control_points_to_transport:
-    momenta_to_transport:
+    control_points: str or pathlib.Path
+        Path to the txt file that contains the initial control points for the main geodesic.
+    momenta: str or pathlib.Path
+        Path to the txt file that contains the initial momenta for the main geodesic.
+    control_points_to_transport: str or pathlib.Path
+        Path to the txt file that contains the initial control points of the deformation to
+        transport.
+    momenta_to_transport: str or pathlib.Path
+        Path to the txt file that contains the initial momenta to transport.
     kernel_width: float
         Width of the Gaussian kernel. Controls the spatial smoothness of the deformation and
         influences the number of parameters required to represent the deformation.
@@ -397,33 +402,53 @@ def transport(
 
 
 def shoot(source, control_points, momenta, output_dir, kernel_width=20.0,
-          regularisation=1.0, number_of_time_steps=11,
+          regularisation=1.0, number_of_time_steps=10,
           kernel_type='torch', kernel_device='cuda', write_params=True,
-          deformation='geodesic', external_forces=None, use_rk2_for_flow=False):
-    """
-    Wrapper to deformetrica compute_shooting
-    :param external_forces:
-    :param deformation:
-    :param source:
-    :param control_points:
-    :param momenta:
-    :param output_dir:
-    :param kernel_width:
-    :param regularisation:
-    :param number_of_time_steps:
-    :param kernel_type:
-    :param kernel_device:
-    :param write_params:
-    :return:
-    """
+          deformation='geodesic', external_forces=None, use_rk2_for_flow=False,
+          use_rk2_for_shoot=False):
+    """Exponential map
+
+    Compute the deformation of a source shape by the flow parametrized by control points and
+    momenta.
+
+    Parameters
+    ----------
+    source: str or pathlib.Path
+        Path to the vtk file that contains the source mesh.
+    control_points: str or pathlib.Path
+        Path to the txt file that contains the initial control points.
+    momenta: str or pathlib.Path
+        Path to the txt file that contains the initial momenta.
+    kernel_width: float
+        Width of the Gaussian kernel. Controls the spatial smoothness of the deformation and
+        influences the number of parameters required to represent the deformation.
+        Optional, default: 20.
+    kernel_type: str, {torch, keops}
+        Package to use for convolutions of velocity fields and loss functions.
+    kernel_device: str, {cuda, cpu}
+    regularisation: unused.
+    write_params: bool
+    external_forces: str or pathlib.Path
+        Path to the vtk file that contains the external forces to compute a spline deformation.
+    use_rk2_for_flow: bool
+        Wether to use Runge-Kutta order 2 steps in the integration of the flow equation, i.e. when
+        warping the shape. If False, a Euler step is used.
+        Optional, default: False
+    use_rk2_for_shoot: bool
+        Wether to use Runge-Kutta order 2 steps in the integration of the Hamiltonian equation that
+        governs the time evolution of control points and momenta. If False, a Euler step is used.
+        Optional, default: False
+
+"""
     deformation_parameters = {
         'deformation_model': deformation,
         'deformation_kernel_type': kernel_type,
         'deformation_kernel_width': kernel_width,
         'deformation_kernel_device': kernel_device,
-        'concentration_of_time_points': number_of_time_steps - 1,
-        'number_of_time_points': number_of_time_steps,
+        'concentration_of_time_points': number_of_time_steps,
+        'number_of_time_points': number_of_time_steps + 1,
         'use_rk2_for_flow': use_rk2_for_flow,
+        'use_rk2_for_shoot': use_rk2_for_shoot,
         'output_dir': output_dir,
         'write_adjoint_parameters': write_params}
 
@@ -454,6 +479,94 @@ def deterministic_atlas(
         freeze_control_points=False, use_rk2_for_flow=False, dimension=3,
         print_every=20, filter_cp=False, threshold=1., attachment_kernel_width=4.,
         initial_step_size=1e-4):
+    r"""Atlas computation
+
+    Estimates an average shape from a collection of shapes, and the
+    deformations from this average to each sample in the collection. This is similar to
+    computing a Frechet mean, i.e. to minimize the following:
+
+    ..math::
+         C(c, \mu) = \frac{1}{\alpha^2} \sum_i \left( d(q_i, \phi_1^{c_i,\mu_i}(\bar{q}))^2 + \|
+         v_0^{c_i,\mu_i} \|_K^2 \right).
+
+    where $c_i, \mu_i$ are the control points and momenta that parametrize the deformation, $v_0^{c,
+    \mu}$ is the associated velocity field defined by the convolution $v_t(x) = \sum_{k=1}^{N_c}
+    K(x, c^{(t)}_k) \mu^{(t)}_K$, K is the Gaussian kernel, $\phi_1^{c,\mu}$ is the flow of $v_t$
+    at time 1, $\bar{q}$ is the source shape being deformed, $q$ is the target shape,
+    and $\alpha$ is a regularization term that controls the tradeoff between exact matching and
+    smoothness of the deformation. $d$ is a distance function on shapes (point-to-point L2,
+    varifold, metric, etc).
+
+    Resulting control points and momenta are saved in the ouput dir as txt files.
+
+    Parameters
+    ----------
+    source: str or pathlib.Path
+        Path to the vtk file that contains the source mesh.
+    target: str or pathlib.Path
+        Path to the vtk file that contains the target mesh.
+    output_dir: str or pathlib.Path
+        Path a directory where results will be saved.
+    kernel_width: float
+        Width of the Gaussian kernel. Controls the spatial smoothness of the deformation and
+        influences the number of parameters required to represent the deformation.
+        Optional, default: 20.
+    regularisation: float
+        $\alpha$ in the above equation. Smaller values will yeild larger deformations to reduce
+        the data attachment term, while larger values will allow attachment errors for a smoother
+        deformation.
+        Optional, default: 1.
+    number_of_time_steps: int
+        Number used in the discretization of the flow equation.
+        Optional, default: 10.
+    metric: str, {landmark, varifold, current}
+        Metric to use to measure attachment between meshes. Landmark refers to L2.
+    attachment_kernel_width: float,
+        If using varifold or currents, width of the kernel used in the attachment metric. Defines
+        the scale at which differences must be taken into account.
+    dimension: int {2, 3}
+        Dimension of the shape embedding space.
+    kernel_type: str, {torch, keops}
+        Package to use for convolutions of velocity fields and loss functions.
+    kernel_device: str, {cuda, cpu}
+    use_svf: bool
+        Whether to use stationnary velocity fields insteads of time evolving velocity. The
+        deformation is no longer a geodesic but there is more symmetry wrt source / target.
+        Optional, default: False
+    initial_control_points: str or pathlib.Path
+        Path to the txt file that contains the initial control points.
+        Optional
+    freeze_control_points: bool
+        Wether to optimize control points jointly with momenta.
+        Optional, default: False
+    preserve_volume: bool
+        Whether to use volume preserving deformation. This modifies the metric on deformations.
+        Optional, default: False
+    use_rk2_for_flow: bool
+        Wether to use Runge-Kutta order 2 steps in the integration of the flow equation, i.e. when
+        warping the shape. If False, a Euler step is used.
+        Optional, default: False
+    use_rk2_for_shoot: bool
+        Wether to use Runge-Kutta order 2 steps in the integration of the Hamiltonian equation that
+        governs the time evolution of control points and momenta. If False, a Euler step is used.
+        Optional, default: False
+    use_rk4_for_shoot: bool
+        Wether to use Runge-Kutta order 4 steps in the integration of the Hamiltonian equation that
+        governs the time evolution of control points and momenta. Overrides use_rk2_for_shoot.
+        RK4 steps are required when estimating a geodesic that will be used for parallel transport.
+        Optional, default: False
+    print_every: int
+        Sets the verbosity level of the optimization scheme.
+    filter_cp: bool
+        Unused
+    threshold: float
+        Unused
+    max_iter: int
+        Maximum number of iteration in the optimization scheme.
+        Optional, default: 200.
+    tol: float
+        Tolerance to evaluate convergence.
+    """
     template = {
         'shape': {
             'deformable_object_type': 'SurfaceMesh', 'kernel_type': kernel_type,
@@ -501,11 +614,6 @@ def deterministic_atlas(
         model_options=model, estimator_options=optimization_parameters)
     path_cp = join(output_dir, strings.cp_str)
     cp = read_2D_array(path_cp)
-
-    # path_momenta = join(output_dir, strings.momenta_str)
-    # momenta = read_3D_array(path_momenta)
-    # poly_cp = momenta_to_vtk(cp, momenta, kernel_width, filter_cp, threshold)
-    # poly_cp.save(join(output_dir, 'initial_control_points.vtk'))
     return time.gmtime()
 
 
