@@ -84,28 +84,28 @@ def registration(
         Package to use for convolutions of velocity fields and loss functions.
     kernel_device: str, {cuda, cpu}
     use_svf: bool
-        Whether to use stationnary velocity fields insteads of time evolving velocity. The
+        Whether to use stationary velocity fields instead of time evolving velocity. The
         deformation is no longer a geodesic but there is more symmetry wrt source / target.
         Optional, default: False
     initial_control_points: str or pathlib.Path
         Path to the txt file that contains the initial control points.
         Optional
     freeze_control_points: bool
-        Wether to optimize control points jointly with momenta.
+        Whether to optimize control points jointly with momenta.
         Optional, default: False
     preserve_volume: bool
         Whether to use volume preserving deformation. This modifies the metric on deformations.
         Optional, default: False
     use_rk2_for_flow: bool
-        Wether to use Runge-Kutta order 2 steps in the integration of the flow equation, i.e. when
+        Whether to use Runge-Kutta order 2 steps in the integration of the flow equation, i.e. when
         warping the shape. If False, a Euler step is used.
         Optional, default: False
     use_rk2_for_shoot: bool
-        Wether to use Runge-Kutta order 2 steps in the integration of the Hamiltonian equation that
+        Whether to use Runge-Kutta order 2 steps in the integration of the Hamiltonian equation that
         governs the time evolution of control points and momenta. If False, a Euler step is used.
         Optional, default: False
     use_rk4_for_shoot: bool
-        Wether to use Runge-Kutta order 4 steps in the integration of the Hamiltonian equation that
+        Whether to use Runge-Kutta order 4 steps in the integration of the Hamiltonian equation that
         governs the time evolution of control points and momenta. Overrides use_rk2_for_shoot.
         RK4 steps are required when estimating a geodesic that will be used for parallel transport.
         Optional, default: False
@@ -181,13 +181,13 @@ def registration(
 
 
 def spline_regression(
-        source, target, output_dir, times, subject_id='patient', t0=0,
+        source, targets, output_dir, times, subject_id=None, t0=0,
         max_iter=200, kernel_width=15.0, regularisation=1.0, number_of_time_steps=10,
         initial_step_size=1e-4, kernel_type='torch', kernel_device='cuda',
         initial_control_points=None, tol=1e-5, freeze_control_points=False,
-        use_rk2_for_flow=False, dimension=3, freeze_external_forces=False,
+        use_rk2_for_flow=False, use_rk2_for_shoot=False, dimension=3, freeze_external_forces=False,
         target_weights=None, geodesic_weight=0.1, metric='landmark',
-        filter_cp=False, threshold=1., attachment_kernel_width=15.):
+        filter_cp=False, threshold=1., attachment_kernel_width=15., print_every=20):
     r"""Geodesic or Spline Regression.
 
     Estimates the best possible time-constrained deformation to fit a set of observations indexed
@@ -209,19 +209,25 @@ def spline_regression(
     ----------
     source: str or pathlib.Path
         Path to the vtk file that contains the source mesh.
-    target: list of dict
+    targets: list of dict
         Path to the vtk files that contain the target meshes. Must be formatted as a list of
-        dictionnaries, where each dict represents a time points and has a key 'shape' with the
+        dictionaries, where each dict represents a time points and has a key 'shape' with the
         path to the shape as value.
-    times: list of floats in [0, 1].
+    times: list of floats in [0, 1]
         Covariable used in the regression.
-    t0: float,
+    subject_id: list of str
+        Not used.
+    t0: float
         Time of the first shape.
+    initial_step_size: float
+        Initial learning rate.
+        Optional, default: 1e-4.
     freeze_external_forces: bool
         Whether to use external forces in the regression model. When used, splines are used
         instead of geodesics.
     output_dir: str or pathlib.Path
-        Path a directory where results will be saved.
+        Path to a directory where results will be saved. It will be created if it does not
+        already exist.
     kernel_width: float
         Width of the Gaussian kernel. Controls the spatial smoothness of the deformation and
         influences the number of parameters required to represent the deformation.
@@ -244,34 +250,27 @@ def spline_regression(
     kernel_type: str, {torch, keops}
         Package to use for convolutions of velocity fields and loss functions.
     kernel_device: str, {cuda, cpu}
-    use_svf: bool
-        Whether to use stationnary velocity fields insteads of time evolving velocity. The
-        deformation is no longer a geodesic but there is more symmetry wrt source / target.
-        Optional, default: False
     initial_control_points: str or pathlib.Path
         Path to the txt file that contains the initial control points.
         Optional
     freeze_control_points: bool
-        Wether to optimize control points jointly with momenta.
-        Optional, default: False
-    preserve_volume: bool
-        Whether to use volume preserving deformation. This modifies the metric on deformations.
+        Whether to optimize control points jointly with momenta.
         Optional, default: False
     use_rk2_for_flow: bool
-        Wether to use Runge-Kutta order 2 steps in the integration of the flow equation, i.e. when
+        Whether to use Runge-Kutta order 2 steps in the integration of the flow equation, i.e. when
         warping the shape. If False, a Euler step is used.
         Optional, default: False
     use_rk2_for_shoot: bool
-        Wether to use Runge-Kutta order 2 steps in the integration of the Hamiltonian equation that
+        Whether to use Runge-Kutta order 2 steps in the integration of the Hamiltonian equation that
         governs the time evolution of control points and momenta. If False, a Euler step is used.
-        Optional, default: False
-    use_rk4_for_shoot: bool
-        Wether to use Runge-Kutta order 4 steps in the integration of the Hamiltonian equation that
-        governs the time evolution of control points and momenta. Overrides use_rk2_for_shoot.
-        RK4 steps are required when estimating a geodesic that will be used for parallel transport.
         Optional, default: False
     print_every: int
         Sets the verbosity level of the optimization scheme.
+    target_weights: list or array
+        Coefficient to weight observations' contributions to the loss function.
+    geodesic_weight: float
+        Coefficient to weight the geodesic part compared to the external forces.
+        Optional, default: 0.1.
     filter_cp: bool
         Whether to filter control points saved in the vtk file to exclude those whose momenum
         vector is not significative and does not contribute to the deformation.
@@ -284,6 +283,8 @@ def spline_regression(
     tol: float
         Tolerance to evaluate convergence.
     """
+    if subject_id is None:
+        subject_id = ['patient']
     template = {
         'shape': {
             'deformable_object_type': 'SurfaceMesh', 'kernel_type': kernel_type,
@@ -294,14 +295,16 @@ def spline_regression(
             'attachment_type': metric}}
 
     data_set = {
-        'visit_ages': [times], 'dataset_filenames': [target], 'subject_ids': subject_id}
+        'visit_ages': [times], 'dataset_filenames': [targets], 'subject_ids': subject_id}
 
     model = {'deformation_kernel_type': kernel_type,
              'deformation_kernel_width': kernel_width,
              'deformation_kernel_device': kernel_device,
              'number_of_time_points': number_of_time_steps + 1,
              'concentration_of_time_points': number_of_time_steps,
-             'use_rk2_for_flow': use_rk2_for_flow, 'freeze_template': True,
+             'use_rk2_for_flow': use_rk2_for_flow,
+             'use_rk2_for_shoot': use_rk2_for_shoot,
+             'freeze_template': True,
              'freeze_control_points': freeze_control_points,
              'freeze_external_forces': freeze_external_forces,
              'freeze_momenta': False, 'freeze_noise_variance': False,
@@ -319,7 +322,7 @@ def spline_regression(
         'line_search_shrink': 0.5, 'line_search_expand': 1.5,
         'max_line_search_iterations': 30, 'optimized_log_likelihood': 'complete',
         'optimization_method_type': 'ScipyLBFGS', 'max_iterations': max_iter,
-        'convergence_tolerance': tol, 'print_every_n_iters': 20,
+        'convergence_tolerance': tol, 'print_every_n_iters': print_every,
         'save_every_n_iters': 100, 'state_file': None, 'load_state_file': False}
 
     if subject_id != 'patient':
@@ -369,6 +372,9 @@ def transport(
         transport.
     momenta_to_transport: str or pathlib.Path
         Path to the txt file that contains the initial momenta to transport.
+    output_dir: str or pathlib.Path
+        Path to a directory where results will be saved. It will be created if it does not
+        already exist.
     kernel_width: float
         Width of the Gaussian kernel. Controls the spatial smoothness of the deformation and
         influences the number of parameters required to represent the deformation.
@@ -431,14 +437,13 @@ def shoot(source, control_points, momenta, output_dir, kernel_width=20.0,
     external_forces: str or pathlib.Path
         Path to the vtk file that contains the external forces to compute a spline deformation.
     use_rk2_for_flow: bool
-        Wether to use Runge-Kutta order 2 steps in the integration of the flow equation, i.e. when
+        Whether to use Runge-Kutta order 2 steps in the integration of the flow equation, i.e. when
         warping the shape. If False, a Euler step is used.
         Optional, default: False
     use_rk2_for_shoot: bool
-        Wether to use Runge-Kutta order 2 steps in the integration of the Hamiltonian equation that
+        Whether to use Runge-Kutta order 2 steps in the integration of the Hamiltonian equation that
         governs the time evolution of control points and momenta. If False, a Euler step is used.
         Optional, default: False
-
 """
     deformation_parameters = {
         'deformation_model': deformation,
@@ -476,9 +481,9 @@ def deterministic_atlas(
         kernel_width=15.0, regularisation=1.0, number_of_time_steps=11,
         metric='landmark', kernel_type='torch',
         kernel_device='auto', initial_control_points=None, tol=1e-5,
-        freeze_control_points=False, use_rk2_for_flow=False, dimension=3,
-        print_every=20, filter_cp=False, threshold=1., attachment_kernel_width=4.,
-        initial_step_size=1e-4):
+        freeze_control_points=False, use_rk2_for_flow=False, use_rk2_for_shoot=False,
+        preserve_volume=False, use_svf=False, dimension=3,
+        print_every=20, attachment_kernel_width=4., initial_step_size=1e-4, **kwargs):
     r"""Atlas computation
 
     Estimates an average shape from a collection of shapes, and the
@@ -503,8 +508,10 @@ def deterministic_atlas(
     ----------
     source: str or pathlib.Path
         Path to the vtk file that contains the source mesh.
-    target: str or pathlib.Path
-        Path to the vtk file that contains the target mesh.
+    targets: list of dict
+        Path to the vtk files that contain the target meshes. Must be formatted as a list of
+        dictionaries, where each dict represents a time points and has a key 'shape' with the
+        path to the shape as value.
     output_dir: str or pathlib.Path
         Path a directory where results will be saved.
     kernel_width: float
@@ -530,42 +537,36 @@ def deterministic_atlas(
         Package to use for convolutions of velocity fields and loss functions.
     kernel_device: str, {cuda, cpu}
     use_svf: bool
-        Whether to use stationnary velocity fields insteads of time evolving velocity. The
+        Whether to use stationary velocity fields instead of time evolving velocity. The
         deformation is no longer a geodesic but there is more symmetry wrt source / target.
         Optional, default: False
     initial_control_points: str or pathlib.Path
         Path to the txt file that contains the initial control points.
         Optional
     freeze_control_points: bool
-        Wether to optimize control points jointly with momenta.
+        Whether to optimize control points jointly with momenta.
         Optional, default: False
     preserve_volume: bool
         Whether to use volume preserving deformation. This modifies the metric on deformations.
         Optional, default: False
     use_rk2_for_flow: bool
-        Wether to use Runge-Kutta order 2 steps in the integration of the flow equation, i.e. when
+        Whether to use Runge-Kutta order 2 steps in the integration of the flow equation, i.e. when
         warping the shape. If False, a Euler step is used.
         Optional, default: False
     use_rk2_for_shoot: bool
-        Wether to use Runge-Kutta order 2 steps in the integration of the Hamiltonian equation that
+        Whether to use Runge-Kutta order 2 steps in the integration of the Hamiltonian equation that
         governs the time evolution of control points and momenta. If False, a Euler step is used.
-        Optional, default: False
-    use_rk4_for_shoot: bool
-        Wether to use Runge-Kutta order 4 steps in the integration of the Hamiltonian equation that
-        governs the time evolution of control points and momenta. Overrides use_rk2_for_shoot.
-        RK4 steps are required when estimating a geodesic that will be used for parallel transport.
         Optional, default: False
     print_every: int
         Sets the verbosity level of the optimization scheme.
-    filter_cp: bool
-        Unused
-    threshold: float
-        Unused
     max_iter: int
         Maximum number of iteration in the optimization scheme.
         Optional, default: 200.
     tol: float
         Tolerance to evaluate convergence.
+    initial_step_size: float
+        Initial learning rate.
+        Optional, default: 1e-4.
     """
     template = {
         'shape': {
@@ -586,7 +587,11 @@ def deterministic_atlas(
         'deformation_kernel_device': kernel_device,
         'number_of_time_points': number_of_time_steps,
         'concentration_of_time_points': number_of_time_steps - 1,
-        'use_rk2_for_flow': use_rk2_for_flow, 'freeze_template': False,
+        'use_rk2_for_flow': use_rk2_for_flow,
+        'use_rk2_for_shoot': use_rk2_for_shoot,
+        'use_svf': use_svf,
+        'preserve_volume': preserve_volume,
+        'freeze_template': False,
         'freeze_control_points': freeze_control_points,
         'freeze_momenta': False, 'freeze_noise_variance': False,
         'use_sobolev_gradient': True,
@@ -612,12 +617,11 @@ def deterministic_atlas(
     deformetrica.estimate_deterministic_atlas(
         template_specifications=template, dataset_specifications=data_set,
         model_options=model, estimator_options=optimization_parameters)
-    path_cp = join(output_dir, strings.cp_str)
-    cp = read_2D_array(path_cp)
     return time.gmtime()
 
 
 def momenta_to_vtk(cp, momenta, kernel_width=5., filter_cp=True, threshold=1.):
+    """Attach momenta and velocity field to control points and save as vtk."""
     kernel = TorchKernel(kernel_width=kernel_width)
     velocity = kernel.convolve(cp, cp, momenta).cpu()
 
@@ -634,6 +638,7 @@ def momenta_to_vtk(cp, momenta, kernel_width=5., filter_cp=True, threshold=1.):
 
 
 def external_forces_to_vtk(cp, forces, output_dir, filter_cp=True, threshold=1.):
+    """Attach external forces to control points and save as vtk."""
     mask = np.linalg.norm(forces, axis=-1) > threshold
     for i, f in enumerate(forces[:-1]):
         filename = join(output_dir, f'cp_with_external_forces_{i}.vtk')
@@ -647,7 +652,8 @@ def external_forces_to_vtk(cp, forces, output_dir, filter_cp=True, threshold=1.)
         poly_cp.save(filename)
 
 
-def deformation_norm(atlas_dir, kernel_width):
+def ssd(atlas_dir, kernel_width):
+    """Compute the Sum of squared Riemannian distances from atlas to subjects' shape."""
     momenta = torch.from_numpy(read_3D_array(atlas_dir / strings.momenta_str))
     cp = torch.from_numpy(read_2D_array(atlas_dir / strings.cp_str))
     kernel = TorchKernel(kernel_width=kernel_width)

@@ -1,13 +1,11 @@
 import pandas as pd
-import numpy as np
 from pathlib import Path
 
-import lddmm
 from herbrain.pregnancy.configurations import configurations
 from herbrain.regression import main as regression
+from herbrain.regression import compute_r2
 from preprocessing import main as preprocess
 from preprocessing import swap_left_right
-from strings import residual_str, residual_str_spline, template_str
 
 
 def get_data_set(
@@ -96,26 +94,8 @@ for config in configurations[8:]:
     del config['dataset']
 
     regression(data_set, times, out_dir, **config)
-    atlas_dir = out_dir / structure / config_id / 'atlas'
 
-
-    lddmm.deterministic_atlas(
-        data_set[0]['shape'], data_set,
-        structure, atlas_dir, initial_step_size=1e-1, **config['registration_args'])
-
-    # Compute varifold distance between atlas and all datapoints
-    atlas_dir_ = out_dir / structure / config_id / 'atlas_frozen'
-    del config['registration_args']['max_iter']
-    lddmm.deterministic_atlas(
-        atlas_dir / template_str, data_set,
-        structure, atlas_dir_, initial_step_size=1e-10, max_iter=0,
-        **config['registration_args'])
-
-    regression_dir = out_dir / structure / config_id / 'regression'
-    residues_reg = lddmm.read_2D_array(regression_dir / residual_str_spline)
-    residues_atlas = lddmm.read_2D_array(atlas_dir_ / residual_str)
-
-    r2 = 1 - np.sum(residues_reg) / np.sum(residues_atlas)
+    r2 = compute_r2(data_set, out_dir, structure, config_id, config['registration_args'])
     new_row = pd.DataFrame([{"structure": structure, "config": config_id, "r2": r2}])
     results = pd.concat([results, new_row], ignore_index=True)
     print('===========================================================================')
