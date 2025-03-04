@@ -1,0 +1,23 @@
+hc_dict: #hippocampus
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.dict.DictExtractKey
+      data: ${data:hc_image}  # Use the output of the hc_dict step
+      key: image  # Extract only the "image" key from MriNiiLoader's output
+
+    - _target_: polpo.preprocessing.mri.SkimageMarchingCubes
+      level: 0
+      step_size: 1
+      allow_degenerate: false
+      method: lewiner
+
+    - _target_: polpo.preprocessing.TupleToList
+
+    - _target_: polpo.preprocessing.RemoveIndex
+      index: -1
+      inplace: true
+
+    - _target_: polpo.preprocessing.mesh.conversion.TrimeshFromData
+
+    - _target_: polpo.preprocessing.dict.DictAddMesh  # ✅ Immediately add mesh to dictionary
+      data: ${data:hc_image}  # Use the existing hc_dict

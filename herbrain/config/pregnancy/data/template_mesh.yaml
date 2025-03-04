@@ -1,0 +1,5 @@
+template_mesh:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.mesh.analysis.GetMeshFromImage
+      image: ${data:template_image} # returns a dictionary {"template": mesh}

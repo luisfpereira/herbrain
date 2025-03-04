@@ -1,4 +1,14 @@
 defaults:
   - mri
   - hormones
+  - template_image
+  - template_dict
+  - hc_image
+  - hc_dict
+  # - original_meshes
+  # - transformed_meshes
   - meshes
+  - bounds
+  - bounds_with_template
+  - template_mesh
+

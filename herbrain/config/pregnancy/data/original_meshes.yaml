@@ -1,12 +1,12 @@
-meshes: # outputs dict of meshes (hash is sessionID)
+original_meshes: # outputs dict of meshes (hash is sessionID)
   _target_: polpo.preprocessing.Pipeline
   steps:
     - _target_: polpo.preprocessing.ssh.ScpDataLoader.from_host_name
-      data_dir: ~/.herbrain/data/pregnancy/registration/deformetrica/
+      data_dir: ~/.herbrain/data/pregnancy/registration
       host_name: frank
       remote_path: /home/data/pregnancy/registered/deformetrica_20250108
       recursive: true
-      local_basename: transformed
+      local_basename: deformetrica
     - _target_: polpo.preprocessing.path.FileFinder
       rules:
         - _target_: polpo.preprocessing.path.FileRule
@@ -26,3 +26,8 @@ meshes: # outputs dict of meshes (hash is sessionID)
           step:
             - _target_: polpo.preprocessing.mesh.io.TrimeshReader
     - _target_: polpo.preprocessing.dict.Hash
+
+    # - _target_: polpo.preprocessing.mesh.registration.HCToTemplateTransform
+    #   vox2WorldHC: ${data:hc_image}
+    #   vox2WorldTemplate: ${data:template_image}
+    # - _target_: polpo.preprocessing.mesh.registration.ApplyTransform

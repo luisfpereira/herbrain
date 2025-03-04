@@ -1,0 +1,51 @@
+template_mesh:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.mri.MriNiiLoader
+      filename:  ~/.herbrain/data/pregnancy/mri/ses-01/BrainNormalizedToTemplate.nii.gz  # Load MRI NIfTI file
+
+    - _target_: polpo.preprocessing.Pipeline
+      steps:
+        - _target_: polpo.preprocessing.dict.DictExtractKey
+          key: image  # Extract only the "image" key from MriNiiLoader's output
+
+        - _target_: polpo.preprocessing.mri.SkimageMarchingCubes
+          level: 0
+          step_size: 1
+          allow_degenerate: false
+          method: lewiner
+
+        - _target_: polpo.preprocessing.RemoveIndex
+          index: -1
+          inplace: true
+
+        - _target_: polpo.preprocessing.mesh.conversion.TrimeshFromData
+
+        - _target_: polpo.preprocessing.dict.DictAddEntry
+          key: mesh  # Add the mesh back into the dictionary from MriNiiLoader
+
+ hc_mesh:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.mri.MriNiiLoader
+      filename:  ~/.herbrain/data/pregnancy/Segmentations/BB01/left_lfseg_corr_usegray_CT_PRHC.nii.gz  # Load MRI NIfTI file
+
+    - _target_: polpo.preprocessing.Pipeline
+      steps:
+        - _target_: polpo.preprocessing.dict.DictExtractKey
+          key: image  # Extract only the "image" key from MriNiiLoader's output
+
+        - _target_: polpo.preprocessing.mri.SkimageMarchingCubes
+          level: 0
+          step_size: 1
+          allow_degenerate: false
+          method: lewiner
+
+        - _target_: polpo.preprocessing.RemoveIndex
+          index: -1
+          inplace: true
+
+        - _target_: polpo.preprocessing.mesh.conversion.TrimeshFromData
+
+        - _target_: polpo.preprocessing.dict.DictAddEntry
+          key: mesh  # Add the mesh back into the dictionary from MriNiiLoader

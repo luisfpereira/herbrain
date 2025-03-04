@@ -1,0 +1,11 @@
+transformed_meshes: # Outputs dict of transformed meshes (hash is sessionID)
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.mesh.registration.HCToTemplateTransform  # ✅ Step 1: Compute the 4x4 matrix
+      vox2WorldHC: ${data:hc_image}
+      vox2WorldTemplate: ${data:template_image}
+
+    - _target_: polpo.preprocessing.Map  # ✅ Step 2: Apply transform implicitly to every mesh
+      step:
+        - _target_: polpo.preprocessing.mesh.registration.ApplyTransform
+      data: ${data:original_meshes}  # ✅ Meshes get passed automatically

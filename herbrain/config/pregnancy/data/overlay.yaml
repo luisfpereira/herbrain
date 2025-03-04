@@ -1,0 +1,57 @@
+overlay_mesh:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.data.loaders.FigsharePregnancyDataLoader
+      data_dir: "~/.herbrain/data/pregnancy/mri"
+      remote_path: "mri/ses-01"
+    - _target_: polpo.data.finders.FileFinder
+      rules:
+        - _target_: polpo.data.rules.FileRule
+          value: "BrainNormalized"
+          func: "startswith"
+        - _target_: polpo.data.rules.FileRule
+          value: ".nii.gz"
+          func: "endswith"
+    - _target_: polpo.preprocessing.Sorter
+    - _target_: polpo.preprocessing.Pipeline
+      steps:
+        - _target_: polpo.preprocessing.mesh.SkimageMarchingCubes
+        - _target_: polpo.preprocessing.utils.Lambda
+          func: "lambda x: list(x)"  # Convert the result to a list
+        - _target_: polpo.preprocessing.mesh.RemoveIndex
+          index: -1
+          inplace: true
+    # - _target_: polpo.preprocessing.dict.Hash  # Outputs the processed mesh data in a dictionary
+
+outputs:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.path.FileFinder
+      rules:
+        - _target_: polpo.preprocessing.path.FileRule
+          value: "BrainNormalized"
+          func: startswith
+        - _target_: polpo.preprocessing.path.FileRule
+          value: ".nii.gz"
+          func: endswith
+    - _target_: polpo.preprocessing.Map
+      step:
+        _target_: polpo.preprocessing.MriImageLoader
+    - _target_: polpo.preprocessing.Map
+      step:
+        _target_: polpo.preprocessing.Pipeline
+        steps:
+          - _target_: polpo.preprocessing.mesh.io.SkimageMarchingCubes
+          - _target_: polpo.preprocessing.Function
+            func: lambda x: list(x)
+          - _target_: polpo.preprocessing.str.RemoveIndex
+            index: -1
+            inplace: true
+    - _target_: polpo.preprocessing.Function
+      func: |
+        lambda img: {
+            'mesh': img['mesh'],
+            'affine': img['affine']
+        }
+    - _target_: polpo.preprocessing.dict.Hash
+
