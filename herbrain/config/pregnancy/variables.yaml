@@ -7,7 +7,7 @@ variables:
     max_value: 12400
   prog:
     _target_: polpo.dash.variables.VarDef
-    name: Progesteron
+    name: Progesterone
     unit: ng/ml
     min_value: 54
     max_value: 103

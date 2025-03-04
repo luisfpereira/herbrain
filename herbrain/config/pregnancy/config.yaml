@@ -63,6 +63,7 @@ mri_explorer:
       - _target_: polpo.dash.components.DepVar
         var_def: ${var:trimester}
 
+
 mesh_explorer:
   _target_: polpo.dash.components.MultipleModelsMeshExplorer
   graph:
@@ -70,6 +71,9 @@ mesh_explorer:
     id_: mesh-plot
     plotter:
       _target_: polpo.plot.mesh.MeshPlotter
+      bounds: ${data:bounds}
+      bounds_with_template: ${data:bounds_with_template}
+      template_mesh: ${data:template_image}
   models:
     - ${model:week_mesh}
     - ${model:hormones_mesh}
@@ -99,4 +103,154 @@ mesh_explorer:
           label_style:
             fontSize: 30
             display: "block"
+
+  checkbox_label: Show Full Brain
   button_label: Click Here to Toggle Between Gestational Week vs Hormone Value Prediction
+
+
+# defaults:
+#   - _self_
+#   - data: data
+#   - models: models
+#   - variables
+
+# server:
+#   debug: true
+#   use_reloader: false
+#   host: "0.0.0.0"
+#   port: "8050"
+
+# app:
+#   assets_folder: ./assets
+#   title: "herbrain"
+
+# style:
+#   margin_side: 20px
+#   text_fontsize: 24px
+#   text_fontfamily: Avenir
+#   title_fontsize: 40px
+#   space_between_sections: 70px
+#   space_between_title_and_content: 30px
+
+# mri_explorer:
+#   id_prefix: mri-
+#   _target_: polpo.dash.components.MriExplorer
+#   mri_data: ${data:mri}
+#   hormones_df: ${data:hormones}
+#   sliders:
+#     _target_: polpo.dash.components.MriSliders
+#     components:
+#       - _target_: polpo.dash.components.Slider
+#         var_def: ${var:sessionID}
+#       - _target_: polpo.dash.components.Slider
+#         var_def: ${var:mri_x}
+#         step: 5
+#       - _target_: polpo.dash.components.Slider
+#         var_def: ${var:mri_y}
+#         step: 5
+#       - _target_: polpo.dash.components.Slider
+#         var_def: ${var:mri_z}
+#         step: 5
+#     trims:
+#       - - 20
+#         - 40
+#       - 50
+#       - 70
+#   session_info:
+#     _target_: polpo.dash.components.ComponentGroup
+#     title: Session Information
+#     components:
+#       - _target_: polpo.dash.components.DepVar
+#         var_def: ${var:sessionID}
+#       - _target_: polpo.dash.components.DepVar
+#         var_def: ${var:gestWeek}
+#       - _target_: polpo.dash.components.DepVar
+#         var_def: ${var:estro}
+#       - _target_: polpo.dash.components.DepVar
+#         var_def: ${var:lh}
+#       - _target_: polpo.dash.components.DepVar
+#         var_def: ${var:EndoStatus}
+#       - _target_: polpo.dash.components.DepVar
+#         var_def: ${var:trimester}
+
+# mesh_explorer:
+#   _target_: polpo.dash.components.MultipleModelsMeshExplorer
+#   graph:
+#     _target_: polpo.dash.components.Graph
+#     id_: mesh-plot
+#     plotter:
+#       _target_: polpo.plot.mesh.MeshPlotter
+#       bounds: ${data:bounds}
+#       buttons:
+#       - _target_: polpo.dash.comp aonents.Button
+#         label: Show Overlay
+#         action:
+#           _target_: polpo.dash.actions.UpdateGraph
+#           updates:
+#             visible: [True, True]
+#             bounds: 
+#               _target_: polpo.preprocessing.Pipeline
+#               steps:
+#                 - _target_: polpo.preprocessing.dict.DictAddTemplateMesh
+#                   data: ${data:meshes}
+#                   image: ${data:template_image}
+                
+#                 - _target_: polpo.preprocessing.mesh.analysis.ComputeBounds
+#                   meshes: ${data:meshes}
+#             # scene.xaxis.range: ${data:union_x_range}
+#             # scene.yaxis.range: ${data:union_y_range}
+#             # scene.zaxis.range: ${data:union_z_range}
+
+#       - _target_: polpo.dash.components.Button
+#         label: Hide Overlay
+#         action:
+#           _target_: polpo.dash.actions.UpdateGraph
+#           updates:
+#             visible: [True, False]
+#             bounds: 
+#             _target_: polpo.preprocessing.Pipeline
+#             steps:
+#               - _target_: polpo.preprocessing.dict.RemoveEntry
+#                 key: "overlay"                
+#               - _target_: polpo.preprocessing.mesh.analysis.ComputeBounds
+#                 meshes: ${data:meshes}
+#             # scene.xaxis.range: ${data:x_range}
+#             # scene.yaxis.range: ${data:y_range}
+#             # scene.zaxis.range: ${data:z_range}
+#     button_options:
+#       direction: down
+#       showactive: true
+#       x: 0.17
+#       xanchor: left
+#       y: 0.9
+#       yanchor: top
+#   models:
+#     - ${model:week_mesh}
+#     - ${model:hormones_mesh}
+#   inputs:
+#     # week
+#     - _target_: polpo.dash.components.Slider
+#       var_def: ${var:gestWeek}
+#     # hormones
+#     - _target_: polpo.dash.components.ComponentGroup
+#       ordering: ${var:hormones_ordering}
+#       components:
+#         - _target_: polpo.dash.components.Slider
+#           var_def: ${var:estro}
+#           step: 500
+#           label_style:
+#             fontSize: 30
+#             display: "block"
+#         - _target_: polpo.dash.components.Slider
+#           var_def: ${var:prog}
+#           step: 3
+#           label_style:
+#             fontSize: 30
+#             display: "block"
+#         - _target_: polpo.dash.components.Slider
+#           var_def: ${var:lh}
+#           step: 0.05
+#           label_style:
+#             fontSize: 30
+#             display: "block"
+#   button_label: Click Here to Toggle Between Gestational Week vs Hormone Value Prediction
