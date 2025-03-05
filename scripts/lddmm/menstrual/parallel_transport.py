@@ -5,8 +5,8 @@ import pandas as pd
 import preprocessing
 
 import herbrain.lddmm as lddmm
-import herbrain.strings as strings
-from herbrain.regression import main as regression
+import herbrain.lddmm.strings as lddmm_strings
+from herbrain.lddmm.regression import main as regression
 
 project_dir = Path("/user/nguigui/home/Documents/UCSB/menstrual")
 data_dir = project_dir / "a_meshed"
@@ -62,15 +62,19 @@ shoot_args = {
     "write_params": False,
 }
 
-momenta = registration_dir / strings.momenta_str
-control_points = registration_dir / strings.cp_str
+momenta = registration_dir / lddmm_strings.momenta_str
+control_points = registration_dir / lddmm_strings.cp_str
 
 for d in range(31, 61):
     target = get_day(side_, structure, day=d)
     output_name = tmp_dir / structure / f"reg_{d}"
     lddmm.registration(source, target, output_name, **registration_args)
 
-    to_move = [strings.cp_str, strings.momenta_str, strings.residual_str]
+    to_move = [
+        lddmm_strings.cp_str,
+        lddmm_strings.momenta_str,
+        lddmm_strings.residual_str,
+    ]
     move_to = [f"cp_{d}.txt", f"momenta_{d}.txt", f"registration_error_{d}.txt"]
 
     for s, t in zip(to_move, move_to):
@@ -80,7 +84,7 @@ for d in range(31, 61):
     subprocess.call(["mkdir", output_name])
 
     target_dir = output_dir / structure / "transport"
-    momenta_to_transport = (registration_seq_dir / f"momenta_{d}.txt").as_posix()
+    momenta_to_transport = (registration_seq_dir / f"momenta_{d}.txt").as_posstringsix()
     control_points_to_transport = (registration_seq_dir / f"cp_{d}.txt").as_posix()
 
     subprocess.call(["mkdir", target_dir])
@@ -110,7 +114,7 @@ for d in range(31, 61):
         **shoot_args,
     )
 
-    shoot_name = output_name / strings.shoot_str.format(n_rungs)
+    shoot_name = output_name / lddmm_strings.shoot_str.format(n_rungs)
     subprocess.call(["mv", shoot_name, target_dir / f"transported_shoot_{d}.vtk"])
     subprocess.call(["rm", "-r", output_name])
 

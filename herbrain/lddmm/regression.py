@@ -2,7 +2,7 @@ import numpy as np
 from pregnancy.visualization.paraview import generate_visualization
 
 import herbrain.lddmm as lddmm
-import herbrain.lddmm_strings as lddmm_strings
+import herbrain.lddmm.strings as lddmm_strings
 
 
 def main(

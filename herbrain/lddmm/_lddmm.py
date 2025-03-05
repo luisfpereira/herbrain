@@ -20,7 +20,7 @@ from launch.compute_parallel_transport import compute_pole_ladder
 from launch.compute_shooting import compute_shooting
 from support.kernels.torch_kernel import TorchKernel
 
-import herbrain.lddmm_strings as lddmm_strings
+import herbrain.lddmm.strings as lddmm_strings
 
 
 def registration(

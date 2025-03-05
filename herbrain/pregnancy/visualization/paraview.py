@@ -2,7 +2,7 @@ import json
 import re
 from pathlib import Path
 
-import herbrain.lddmm_strings as lddmm_strings
+import herbrain.lddmm.strings as lddmm_strings
 
 
 def generate_visualization(registration_dir, regression_dir, data_set, times):

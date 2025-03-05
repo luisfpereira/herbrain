@@ -2,11 +2,11 @@ from pathlib import Path
 
 import configurations
 import pandas as pd
-from preprocessing import main as preprocess
-from preprocessing import swap_left_right
 
-from herbrain.regression import compute_r2
-from herbrain.regression import main as regression
+from herbrain.lddmm.regression import compute_r2
+from herbrain.lddmm.regression import main as regression
+from herbrain.preprocessing import main as preprocess
+from herbrain.preprocessing import swap_left_right
 
 
 def get_data_set(
