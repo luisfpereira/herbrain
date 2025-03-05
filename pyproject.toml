@@ -28,6 +28,12 @@ app = [
     "hydra-core",
     "polpo[all] @ git+https://github.com/geometric-intelligence/polpo.git@main",
 ]
+lddmm = [
+    "torch",
+    "matplotlib",
+    "pyvista",
+    "deformetrica @ git+https://github.com/nguigs/deformetrica@spline-regression",
+]
 
 [project.urls]
 repository = "https://github.com/geometric-intelligence/herbrain"
