@@ -2,7 +2,7 @@ import json
 import re
 from pathlib import Path
 
-import herbrain.strings as strings
+import herbrain.lddmm_strings as lddmm_strings
 
 
 def generate_visualization(registration_dir, regression_dir, data_set, times):
@@ -10,7 +10,7 @@ def generate_visualization(registration_dir, regression_dir, data_set, times):
         registration={
             "registrationName": "registration",
             "FileNames": [
-                (registration_dir / strings.registration_str.format(i)).as_posix()
+                (registration_dir / lddmm_strings.registration_str.format(i)).as_posix()
                 for i in range(11)
             ],
         },
@@ -24,7 +24,7 @@ def generate_visualization(registration_dir, regression_dir, data_set, times):
         },
         source_shape={
             "registrationName": "source",
-            "FileNames": [(registration_dir / strings.template_str).as_posix()],
+            "FileNames": [(registration_dir / lddmm_strings.template_str).as_posix()],
         },
         initial_cp_regression={
             "registrationName": "initial_control_points_regression",
@@ -33,7 +33,7 @@ def generate_visualization(registration_dir, regression_dir, data_set, times):
         regression_shapes={
             "registrationName": "regression",
             "FileNames": [
-                (regression_dir / strings.regression_str.format(i, t)).as_posix()
+                (regression_dir / lddmm_strings.regression_str.format(i, t)).as_posix()
                 for i, t in enumerate(sorted(times))
             ],
         },

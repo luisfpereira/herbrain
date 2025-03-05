@@ -20,7 +20,7 @@ from launch.compute_parallel_transport import compute_pole_ladder
 from launch.compute_shooting import compute_shooting
 from support.kernels.torch_kernel import TorchKernel
 
-import herbrain.strings as strings
+import herbrain.lddmm_strings as lddmm_strings
 
 
 def registration(
@@ -209,10 +209,10 @@ def registration(
         estimator_options=optimization_parameters,
     )
 
-    path_cp = join(output_dir, strings.cp_str)
+    path_cp = join(output_dir, lddmm_strings.cp_str)
     cp = read_2D_array(path_cp)
 
-    path_momenta = join(output_dir, strings.momenta_str)
+    path_momenta = join(output_dir, lddmm_strings.momenta_str)
     momenta = read_3D_array(path_momenta)
     poly_cp = momenta_to_vtk(cp, momenta, kernel_width, filter_cp, threshold)
     poly_cp.save(join(output_dir, "initial_control_points.vtk"))
@@ -427,15 +427,15 @@ def spline_regression(
     )
 
     # agregate results in vtk file for paraview
-    path_cp = join(output_dir, strings.cp_str_spline)
+    path_cp = join(output_dir, lddmm_strings.cp_str_spline)
     cp = read_2D_array(path_cp)
-    path_momenta = join(output_dir, strings.mom_str_spline)
+    path_momenta = join(output_dir, lddmm_strings.mom_str_spline)
     momenta = read_3D_array(path_momenta)
     poly_cp = momenta_to_vtk(cp, momenta, kernel_width, filter_cp, threshold)
     poly_cp.save(join(output_dir, "initial_control_points.vtk"))
 
     if not freeze_external_forces:
-        forces = read_3D_array(join(output_dir, strings.ext_forces_str))
+        forces = read_3D_array(join(output_dir, lddmm_strings.ext_forces_str))
         external_forces_to_vtk(cp, forces, output_dir, filter_cp, threshold)
 
     return time.gmtime()
@@ -817,8 +817,8 @@ def external_forces_to_vtk(cp, forces, output_dir, filter_cp=True, threshold=1.0
 
 def ssd(atlas_dir, kernel_width):
     """Compute the Sum of squared Riemannian distances from atlas to subjects' shape."""
-    momenta = torch.from_numpy(read_3D_array(atlas_dir / strings.momenta_str))
-    cp = torch.from_numpy(read_2D_array(atlas_dir / strings.cp_str))
+    momenta = torch.from_numpy(read_3D_array(atlas_dir / lddmm_strings.momenta_str))
+    cp = torch.from_numpy(read_2D_array(atlas_dir / lddmm_strings.cp_str))
     kernel = TorchKernel(kernel_width=kernel_width)
     kernel_matrix = kernel.get_kernel_matrix(cp, cp)
     ssd = (torch.einsum("...ij,...kj->...ik", momenta, momenta) * kernel_matrix).sum()

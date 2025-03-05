@@ -1,8 +1,8 @@
 import numpy as np
 from pregnancy.visualization.paraview import generate_visualization
-from strings import cp_str, residual_str, residual_str_spline, template_str
 
 import herbrain.lddmm as lddmm
+import herbrain.lddmm_strings as lddmm_strings
 
 
 def main(
@@ -36,7 +36,7 @@ def main(
     # geodesic or spline regression (depending on freeze_external_forces)
     all_spline_args = registration_args.copy()
     all_spline_args.update(spline_args)
-    all_spline_args["initial_control_points"] = registration_dir / cp_str
+    all_spline_args["initial_control_points"] = registration_dir / lddmm_strings.cp_str
     regression_dir = output_dir / structure / config_id / "regression"
     lddmm.spline_regression(
         source=data_set[0]["shape"],
@@ -66,7 +66,7 @@ def compute_r2(data_set, out_dir, structure, config_id, registration_args):
     atlas_dir_ = out_dir / structure / config_id / "atlas_frozen"
     del registration_args["max_iter"]
     lddmm.deterministic_atlas(
-        atlas_dir / template_str,
+        atlas_dir / lddmm_strings.template_str,
         data_set,
         structure,
         atlas_dir_,
@@ -76,8 +76,10 @@ def compute_r2(data_set, out_dir, structure, config_id, registration_args):
     )
 
     regression_dir = out_dir / structure / config_id / "regression"
-    residues_reg = lddmm.read_2D_array(regression_dir / residual_str_spline)
-    residues_atlas = lddmm.read_2D_array(atlas_dir_ / residual_str)
+    residues_reg = lddmm.read_2D_array(
+        regression_dir / lddmm_strings.residual_str_spline
+    )
+    residues_atlas = lddmm.read_2D_array(atlas_dir_ / lddmm_strings.residual_str)
 
     r2 = 1 - np.sum(residues_reg) / np.sum(residues_atlas)
     return r2

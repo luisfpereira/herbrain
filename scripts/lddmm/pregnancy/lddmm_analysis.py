@@ -1,10 +1,10 @@
 from pathlib import Path
 
+import configurations
 import pandas as pd
 from preprocessing import main as preprocess
 from preprocessing import swap_left_right
 
-from herbrain.pregnancy.configurations import configurations
 from herbrain.regression import compute_r2
 from herbrain.regression import main as regression
 
