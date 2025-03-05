@@ -32,7 +32,7 @@ lddmm = [
     "torch",
     "matplotlib",
     "pyvista",
-    "deformetrica @ git + https://github.com/nguigs/deformetrica@spline-regression",
+    "deformetrica @ git+https://github.com/nguigs/deformetrica@spline-regression",
 ]
 
 [project.urls]
