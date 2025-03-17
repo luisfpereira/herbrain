@@ -1,14 +1,16 @@
-from pathlib import Path
 import numpy as np
+import matplotlib.pyplot as plt
 import pandas as pd
 import pyvista as pv
 import statsmodels.api as sm
+from pathlib import Path
+from sklearn.cross_decomposition import CCA
+from support.kernels.torch_kernel import TorchKernel
 
 import herbrain.lddmm as lddmm
 import herbrain.lddmm.strings as strings
 from herbrain.depression.hotelling import hotelling_t2
 from herbrain.parallel_transport import main as parallel_transport
-from support.kernels.torch_kernel import TorchKernel
 
 
 output_dir = Path()
@@ -50,8 +52,8 @@ kernel = TorchKernel(kernel_width=kernel_width, device='auto')
 subjects = []
 transport_result = pd.DataFrame()
 for name in subjects:
-    source = f'path/to/data/control/{name}/t0'
-    target = f'path/to/data/control/{name}/t1'
+    source = f'path/to/data/{name}/t0'
+    target = f'path/to/data/{name}/t1'
     shoot_args['source'] = source
     cp, mom = parallel_transport(
         source, target, atlas, name, output_dir, registration_args, transport_args,
@@ -66,25 +68,26 @@ for name in subjects:
 transport_result.columns = ['pid'] + [
     f'vel_{k}_{i}' for k in range(n_cp) for i in range(1, 4)]
 transport_result = transport_result.set_index('pid')
-vel_columns = transport_result.columns[transport_result.columns.str.contains('vel')]
+vel_cols = transport_result.columns[transport_result.columns.str.contains('vel')]
 
-# Add the disease column, based on stg
-transport_result['disease'] = 'control'
+# Add the targetVariable column, depressed? Mother?
+transport_result['targetVariable'] = 'control'  # 'test'
 transport_result.to_csv(output_dir / 'transported_vel.csv')
 
-grouped = transport_result.groupby('disease').mean()
-controls = transport_result.loc[transport_result.disease == 'control', vel_columns]
-patients = transport_result.loc[transport_result.disease == 'PPD', vel_columns]
+grouped = transport_result.groupby('targetVariable').mean()
+controls = transport_result.loc[transport_result.targetVariable == 'control', vel_cols]
+patients = transport_result.loc[transport_result.targetVariable == 'PPD', vel_cols]
 
-# Hotelling test
+# Hotelling test + Bonferroni correction
 pval, t2 = hotelling_t2(controls, patients)
 reject, corrected_pval, _, fwer = sm.stats.multipletests(pval, method='bonferroni')
 
-mean_vel_ppd = grouped.loc['PPD', vel_columns].values
-mean_vel_ctl = grouped.loc['control', vel_columns].values
+mean_vel_ppd = grouped.loc['test', vel_cols].values
+mean_vel_ctl = grouped.loc['control', vel_cols].values
 significative_vel = reject[:, None] * mean_vel_ppd
 significative_vel_dif = reject[:, None] * (mean_vel_ppd - mean_vel_ctl).numpy()
 
+# Add to a vtk file to visualize results
 poly = pv.PolyData(atlas_cp)
 poly['SignificantMeanVelocity'] = significative_vel
 poly['SignificantMeanVelocityDiff'] = significative_vel_dif
@@ -93,3 +96,43 @@ poly['Hotelling_reject'] = reject.astype(float)
 poly['MeanVelocityPPD'] = mean_vel_ppd
 poly['MeanVelocityControl'] = mean_vel_ctl
 poly.save(output_dir / 'hotelling_cp.vtk')
+
+# CCA
+
+# Make sure epds scores are numerical variables, otherwise use one hot encoding
+# Make sure subjects follow the same order in both data frames.
+epds_scores = pd.read_csv('')
+cca = CCA(n_components=2)
+X_train = transport_result[vel_cols]
+Y_train = epds_scores
+cca.fit(X_train, Y_train)
+X_train_r, Y_train_r = cca.transform(X_train, Y_train)
+
+
+# On diagonal plot X vs Y scores on each components
+plt.figure(figsize=(12, 8))
+plt.subplot(221)
+plt.scatter(X_train_r[:, 0], Y_train_r[:, 0], label="train", marker="o", s=25)
+plt.xlabel("x scores")
+plt.ylabel("y scores")
+plt.legend(loc="best")
+
+plt.subplot(224)
+plt.scatter(X_train_r[:, 1], Y_train_r[:, 1], label="train", marker="o", s=25)
+plt.xlabel("x scores")
+plt.ylabel("y scores")
+plt.legend(loc="best")
+
+# Off diagonal plot components 1 vs 2 for X and Y
+plt.subplot(222)
+plt.scatter(X_train_r[:, 0], X_train_r[:, 1], label="train", marker="*", s=50)
+plt.xlabel("X comp. 1")
+plt.ylabel("X comp. 2")
+plt.legend(loc="best")
+
+plt.subplot(223)
+plt.scatter(Y_train_r[:, 0], Y_train_r[:, 1], label="train", marker="*", s=50)
+plt.xlabel("Y comp. 1")
+plt.ylabel("Y comp. 2")
+plt.legend(loc="best")
+plt.show()
