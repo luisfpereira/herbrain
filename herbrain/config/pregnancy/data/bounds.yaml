@@ -1,5 +1,0 @@
-bounds: 
-  _target_: polpo.preprocessing.Pipeline
-  steps:
-    - _target_: polpo.preprocessing.mesh.analysis.ComputeBounds
-      meshes: ${data:meshes}

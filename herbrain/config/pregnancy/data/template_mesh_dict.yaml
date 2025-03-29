@@ -1,7 +1,0 @@
-template_mesh_dict:
-  _target_: polpo.preprocessing.Pipeline
-  steps:
-    - _target_: polpo.preprocessing.dict.DictAddEntry
-      data: ${data:template_dict}  # Use the output of the template_dict step
-      key: mesh  # Add the mesh back into the dictionary from MriNiiLoader
-      value: ${template_mesh.mesh}  # Insert mesh output back into the dictionary

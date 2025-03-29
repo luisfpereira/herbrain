@@ -1,5 +1,0 @@
-hc_image:
-  _target_: polpo.preprocessing.Pipeline
-  steps:
-    - _target_: polpo.preprocessing.mri.MriNiiLoader
-      filename:  ~/.herbrain/data/pregnancy/Segmentations/BB01/left_lfseg_corr_usegray_CT_PRHC.nii.gz  # Load MRI NIfTI file

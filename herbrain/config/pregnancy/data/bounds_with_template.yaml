@@ -1,6 +1,0 @@
-bounds_with_template: 
-  _target_: polpo.preprocessing.Pipeline
-  steps:
-    - _target_: polpo.preprocessing.mesh.analysis.GetMeshFromImage
-      image: ${data:template_image}
-    - _target_: polpo.preprocessing.mesh.analysis.ComputeBounds
