@@ -9,7 +9,7 @@ model:
     with_std: True
 data:
   - ${data:hormones_gest_week}
-  - ${data:meshes}
+  - ${data:registered_meshes}
 pipeline:
   _target_: polpo.preprocessing.Pipeline
   steps:

@@ -11,9 +11,14 @@ model:
     with_mean: True
     with_std: True
   y_smoother: false
+  mesh_transform:
+    _target_: polpo.preprocessing.Map
+    step:
+      - _target_: polpo.preprocessing.mesh.transform.AffineTransformation
+        transform: ${data:affine_transformation}
 data:
   - ${data:hormones_for_pred}
-  - ${data:meshes}
+  - ${data:registered_meshes}
 pipeline:
   _target_: polpo.preprocessing.Pipeline
   steps:
