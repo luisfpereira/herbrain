@@ -1,28 +1,73 @@
-meshes: # outputs dict of meshes (hash is sessionID)
+registered_meshes: # outputs dict of meshes (key is sessionID)
   _target_: polpo.preprocessing.Pipeline
   steps:
-    - _target_: polpo.preprocessing.ssh.ScpDataLoader.from_host_name
-      data_dir: ~/.herbrain/data/pregnancy/registration
-      host_name: frank
-      remote_path: /home/data/pregnancy/registered/deformetrica_20250108
-      recursive: true
-      local_basename: deformetrica
-    - _target_: polpo.preprocessing.path.FileFinder
-      rules:
-        - _target_: polpo.preprocessing.path.FileRule
-          value: .ply
-          func: endswith
-    - _target_: polpo.preprocessing.Sorter
-    - _target_: polpo.preprocessing.BranchingPipeline
-      branches:
-        - _target_: polpo.preprocessing.Map
-          step:
-            _target_: polpo.preprocessing.Pipeline
-            steps:
-              - _target_: polpo.preprocessing.path.PathShortener
-              - _target_: polpo.preprocessing.str.DigitFinder
-                index: 0
-        - _target_: polpo.preprocessing.Map
-          step:
-            _target_: polpo.preprocessing.mesh.io.TrimeshReader
-    - _target_: polpo.preprocessing.dict.Hash
+    - _target_: polpo.preprocessing.load.pregnancy.PregnancyPilotRegisteredMeshesLoader
+      method: deformetrica
+      as_dict: True
+    - _target_: polpo.preprocessing.dict.DictMap
+      step:
+        _target_: polpo.preprocessing.mesh.io.TrimeshReader
+
+template_image:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.load.pregnancy.PregnancyPilotMriLoader
+      subset:
+        - 1
+    - _target_: polpo.preprocessing.ListSqueeze
+    - _target_: polpo.preprocessing.mri.MriImageLoader
+      return_affine: True
+
+template_mesh:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.Constant
+      value: ${data:template_image}
+    - _target_: polpo.preprocessing.IndexSelector
+      index: 0
+    - _target_: polpo.preprocessing.mri.SkimageMarchingCubes
+      return_values: false
+    - _target_: polpo.preprocessing.mesh.conversion.TrimeshFromData
+
+reference_image:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.load.pregnancy.PregnancyPilotSegmentationsLoader
+      subset:
+        - 1
+    - _target_: polpo.preprocessing.ListSqueeze
+    - _target_: polpo.preprocessing.mri.MriImageLoader
+      return_affine: True
+
+affine_transformation:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.Constant
+      value:
+        - ${data:reference_image}
+        - ${data:template_image}
+    - _target_: polpo.preprocessing.Map
+      step:
+        _target_: polpo.preprocessing.IndexSelector
+        index: 1
+    - _target_: polpo.preprocessing.mri.LocalToTemplateTransform
+
+template_bounds:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.Constant
+      value: ${data:template_mesh}
+    - _target_: polpo.preprocessing.mesh.qof.TrimeshMeshBounds
+
+bounds:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.Constant
+      value: ${data:registered_meshes}
+    - _target_: polpo.preprocessing.dict.DictExtractKey
+      key: 1
+    - _target_: polpo.preprocessing.mesh.clone.TrimeshClone
+    - _target_: polpo.preprocessing.mesh.transform.AffineTransformation
+      transform: ${data:affine_transformation}
+    - _target_: polpo.preprocessing.mesh.qof.TrimeshMeshBounds
+      ratio: 0.2

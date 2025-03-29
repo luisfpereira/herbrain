@@ -1,20 +1,8 @@
 hormones: # outputs df; may contain None
   _target_: polpo.preprocessing.Pipeline
   steps:
-    - _target_: polpo.preprocessing.ssh.ScpDataLoader.from_host_name
-      data_dir: ~/.herbrain/data/pregnancy
-      host_name: frank
-      remote_path: /home/data/pregnancy/raw/28Baby_Hormones.csv
-      recursive: false
-    - _target_: polpo.preprocessing.pd.CsvReader
-    - _target_: polpo.preprocessing.pd.UpdateColumnValues
-      column_name: sessionID
-      func:
-        _target_: polpo.preprocessing.Lambda
-        string: "lambda entry: int(entry.split('-')[1])"
-    - _target_: polpo.preprocessing.pd.IndexSetter
-      key: sessionID
-      drop: True
+    - _target_: polpo.preprocessing.load.pregnancy.DenseMaternalCsvDataLoader
+      pilot: true
     - _target_: polpo.preprocessing.pd.Drop
       labels: 27
 

@@ -12,7 +12,7 @@ model:
     with_std: True
 data:
   - ${data:hormones_for_pred}
-  - ${data:meshes}
+  - ${data:registered_meshes}
 pipeline:
   _target_: polpo.preprocessing.Pipeline
   steps:

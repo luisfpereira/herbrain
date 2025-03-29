@@ -69,7 +69,14 @@ mesh_explorer:
     _target_: polpo.dash.components.Graph
     id_: mesh-plot
     plotter:
-      _target_: polpo.plot.mesh.MeshPlotter
+      _target_: polpo.plot.mesh.MeshesPlotter
+      plotters:
+        - _target_: polpo.plot.mesh.MeshPlotter
+      overlay_plotter:
+        _target_: polpo.plot.mesh.StaticMeshPlotter
+        mesh: ${data:template_mesh}
+      bounds: ${data:bounds}
+      overlay_bounds: ${data:template_bounds}
   models:
     - ${model:week_mesh}
     - ${model:hormones_mesh}
@@ -99,4 +106,7 @@ mesh_explorer:
           label_style:
             fontSize: 30
             display: "block"
+  checkbox_labels:
+    - - 1
+      - Show Full Brain
   button_label: Click Here to Toggle Between Gestational Week vs Hormone Value Prediction

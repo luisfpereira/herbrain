@@ -5,7 +5,7 @@ model:
     _target_: sklearn.linear_model.LinearRegression
 data:
   - ${data:hormones_for_pred}
-  - ${data:meshes}
+  - ${data:registered_meshes}
 pipeline:
   _target_: polpo.preprocessing.Pipeline
   steps:

@@ -49,7 +49,7 @@ def my_app(cfg):
     load_models(cfg.models, name="model")
 
     mri_explorer = instantiate(cfg.mri_explorer)
-    mesh_explorer = instantiate(cfg.mesh_explorer)
+    mesh_explorer = instantiate(cfg.mesh_explorer, _convert_="object")
 
     app = Dash(
         __name__,
