@@ -1,4 +1,4 @@
-variables:
+vars:
   estro:
     _target_: polpo.dash.variables.VarDef
     name: Estrogen

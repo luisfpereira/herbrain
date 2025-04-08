@@ -1,3 +1,43 @@
+mri:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.load.pregnancy.PregnancyPilotMriLoader
+      as_dict: false
+    - _target_: polpo.preprocessing.Sorter
+    - _target_: polpo.preprocessing.Truncater # for debugging
+      value: null
+    - _target_: polpo.preprocessing.Map
+      n_jobs: -1
+      verbose: 1
+      step:
+        _target_: polpo.preprocessing.mri.MriImageLoader
+
+hormones: # outputs df; may contain None
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.load.pregnancy.DenseMaternalCsvDataLoader
+      pilot: true
+    - _target_: polpo.preprocessing.pd.Drop
+      labels: 27
+
+hormones_gest_week: # outputs dict
+  _target_: polpo.preprocessing.Pipeline
+  data: ${data:hormones}
+  steps:
+    - _target_: polpo.preprocessing.pd.ColumnsSelector
+      column_names: gestWeek
+    - _target_: polpo.preprocessing.pd.SeriesToDict
+
+hormones_for_pred: # outputs dict
+  _target_: polpo.preprocessing.Pipeline
+  data: ${data:hormones}
+  steps:
+    - _target_: polpo.preprocessing.pd.ColumnsSelector
+      column_names: ${var:hormones_ordering}
+    - _target_: polpo.preprocessing.pd.Dropna
+    - _target_: polpo.preprocessing.pd.DfToDict
+      orient: index
+
 registered_meshes: # outputs dict of meshes (key is sessionID)
   _target_: polpo.preprocessing.Pipeline
   steps:

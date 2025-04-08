@@ -1,8 +1,8 @@
 defaults:
   - _self_
-  - data: data
-  - models: models
-  - variables
+  - data: pilot
+  - models: pca_linreg
+  - vars
 
 server:
   debug: false

@@ -44,7 +44,7 @@ def my_app(cfg):
     style = cfg.style
     update_style(style)
 
-    load_variables(cfg.variables, name="var")
+    load_variables(cfg.vars, name="var")
     load_data(cfg.data, name="data")
     load_models(cfg.models, name="model")
 
