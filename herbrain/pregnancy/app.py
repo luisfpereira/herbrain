@@ -67,7 +67,7 @@ def my_app(cfg):
     app.title = cfg.app.title
 
     server_cfg = cfg.server
-    app.run_server(
+    app.run(
         debug=server_cfg.debug,
         use_reloader=server_cfg.use_reloader,
         host=server_cfg.host,

@@ -26,7 +26,13 @@ requires-python = ">= 3.9, <3.12"
 app = [
     "typer",
     "hydra-core",
-    "polpo[all] @ git+https://github.com/geometric-intelligence/polpo.git@main",
+    "numpy",
+    "pandas",
+    "plotly",
+    "trimesh",
+    "requests",
+    "scikit-learn",
+    "polpo[dash,mri]@git+https://github.com/geometric-intelligence/polpo.git@main",
 ]
 lddmm = [
     "torch",
