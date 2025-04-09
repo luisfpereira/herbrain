@@ -1,4 +1,4 @@
-variables:
+vars:
   Prog:
     _target_: polpo.dash.variables.VarDef
     name: Progesteron

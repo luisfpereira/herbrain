@@ -1,18 +1,18 @@
 import dash_bootstrap_components as dbc
 from dash import Dash, html
-from hydra.utils import instantiate
 from polpo.dash.hydra import load_variables
 from polpo.dash.style import update_style
-from polpo.hydra import load_data, load_models
+from polpo.hydra import instantiate_dict_from_config, load_data, load_models
 
 
 def my_app(cfg):
     style = cfg.style
     update_style(style)
 
-    load_variables(cfg.variables, name="var")
+    load_variables(cfg.vars, name="var")
     load_data(cfg.data, name="data")
     load_models(cfg.models, name="model")
+    objs = instantiate_dict_from_config(cfg.objs, name="obj")
 
     app = Dash(
         __name__,
@@ -22,14 +22,12 @@ def my_app(cfg):
         # assets_folder=cfg.app.assets_folder,
     )
 
-    mesh_explorer = instantiate(cfg.mesh_explorer)
-
     app.layout = dbc.Container(
         [
             html.H1("Brain Shape Prediction with Hormones, Menstrual"),
             html.Hr(),
         ]
-        + mesh_explorer.to_dash(),
+        + objs["mesh_explorer"].to_dash(),
         fluid=True,
     )
     app.title = cfg.app.title

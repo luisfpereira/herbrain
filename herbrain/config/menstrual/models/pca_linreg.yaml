@@ -1,0 +1,27 @@
+hormones_mesh:
+  _target_: polpo.models.SklearnLikeModelFactory
+  model:
+    _target_: polpo.models.DimReductionBasedMeshRegressor
+    model:
+      _target_: sklearn.linear_model.LinearRegression
+    dim_reduction:
+      _target_: sklearn.decomposition.PCA
+      n_components: 4
+    x_scaler:
+      _target_: sklearn.preprocessing.StandardScaler
+      with_mean: True
+      with_std: True
+  data:
+    - ${data:hormones_for_pred}
+    - ${data:registered_meshes}
+  pipeline:
+    _target_: polpo.preprocessing.Pipeline
+    steps:
+      - _target_: polpo.preprocessing.dict.DictMerger
+      - _target_: polpo.preprocessing.NestingSwapper
+      - _target_: polpo.preprocessing.IndexMap
+        index: 0
+        step:
+          _target_: polpo.preprocessing.Map
+          step:
+            _target_: polpo.preprocessing.dict.DictToValuesList

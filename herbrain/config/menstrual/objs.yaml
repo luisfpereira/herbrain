@@ -1,0 +1,50 @@
+objs:
+  mesh_explorer:
+    _target_: polpo.dash.components.MeshExplorer
+    model: ${model:hormones_mesh}
+    graph:
+      _target_: polpo.dash.components.Graph
+      id_: mesh-plot
+      plotter:
+        _target_: polpo.plot.mesh.MeshPlotter
+    inputs:
+      # TODO: add p-values to variables?
+      _target_: polpo.dash.components.ComponentGroup
+      ordering: ${var:hormones_ordering}
+      components:
+        - _target_: polpo.dash.components.Slider
+          var_def: ${var:Prog}
+          step: 1
+          label_style:
+            fontSize: 30
+            display: "block"
+        - _target_: polpo.dash.components.Slider
+          var_def: ${var:Estro}
+          step: 10
+          label_style:
+            fontSize: 30
+            display: "block"
+        - _target_: polpo.dash.components.Slider
+          var_def: ${var:LH}
+          step: 10
+          label_style:
+            fontSize: 30
+            display: "block"
+        - _target_: polpo.dash.components.Slider
+          var_def: ${var:DHEAS}
+          step: 10
+          label_style:
+            fontSize: 30
+            display: "block"
+        - _target_: polpo.dash.components.Slider
+          var_def: ${var:FSH}
+          step: 1
+          label_style:
+            fontSize: 30
+            display: "block"
+        - _target_: polpo.dash.components.Slider
+          var_def: ${var:SHBG}
+          step: 5
+          label_style:
+            fontSize: 30
+            display: "block"
