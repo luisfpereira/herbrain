@@ -10,34 +10,13 @@ Notes on Dash:
 """
 
 import dash_bootstrap_components as dbc
-from dash import Dash, Input, Output, callback, html
-from hydra.utils import instantiate
+from dash import Dash
+from polpo.dash.callbacks import PageRegister
 from polpo.dash.hydra import load_variables
 from polpo.dash.style import update_style
-from polpo.hydra import load_data, load_models
+from polpo.hydra import instantiate_dict_from_config, load_data, load_models
 
 import herbrain.pregnancy.page_content as page_content
-from herbrain.pregnancy.registry import PAGES
-
-
-@callback(Output("page-content", "children"), [Input("url", "pathname")])
-def render_page_content(pathname):
-    """Render the page content based on the URL."""
-    # TODO: move to dash-gi?
-
-    page = PAGES.get(pathname)
-    if page is not None:
-        return page
-
-    # If the user tries to reach a different page, return a 404 message
-    return html.Div(
-        [
-            html.H1("404: Not found", className="text-danger"),
-            html.Hr(),
-            html.P(f"The pathname {pathname} was not recognised..."),
-        ],
-        className="p-3 bg-light rounded-3",
-    )
 
 
 def my_app(cfg):
@@ -47,9 +26,7 @@ def my_app(cfg):
     load_variables(cfg.vars, name="var")
     load_data(cfg.data, name="data")
     load_models(cfg.models, name="model")
-
-    mri_explorer = instantiate(cfg.mri_explorer)
-    mesh_explorer = instantiate(cfg.mesh_explorer, _convert_="object")
+    objs = instantiate_dict_from_config(cfg.objs, name="obj")
 
     app = Dash(
         __name__,
@@ -58,12 +35,9 @@ def my_app(cfg):
         assets_folder=cfg.app.assets_folder,
     )
 
-    # create pages
-    page_content.explore_data(mri_explorer)
-    page_content.ai_hormone_prediction(mesh_explorer)
-    page_content.homepage()
+    page_register = PageRegister()
 
-    app.layout = page_content.app_layout()
+    app.layout = page_content.app_layout(objs["sidebar_elems"], page_register)
     app.title = cfg.app.title
 
     server_cfg = cfg.server

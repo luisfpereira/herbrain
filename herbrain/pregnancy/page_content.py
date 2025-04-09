@@ -4,8 +4,6 @@ import dash_bootstrap_components as dbc
 from dash import dcc, get_asset_url, html
 from polpo.dash.style import STYLE as S
 
-from .registry import register_page
-
 SIDEBAR_STYLE = {
     "position": "fixed",
     "top": 0,
@@ -88,7 +86,7 @@ def acknowledgements_title():
     )
 
 
-def sidebar():
+def sidebar(sidebar_elems, page_register):
     """Return the sidebar of the app."""
     title = dbc.Row(
         [
@@ -108,59 +106,11 @@ def sidebar():
         align="center",
     )
 
-    home_link = dbc.Row(
-        [
-            dbc.Col(
-                html.Img(
-                    src=get_asset_url("home_emoji.jpeg"),
-                    style={"width": "30px", "height": "auto"},
-                ),
-                width=2,
-            ),
-            dbc.Col(
-                dbc.NavLink("Home", href="/", active="exact"),
-                width=10,
-            ),
-        ],
-        align="center",
-    )
-
-    mri_link = dbc.Row(
-        [
-            dbc.Col(
-                html.Img(
-                    src=get_asset_url("brain_emoji.jpeg"),
-                    style={"width": "40px", "height": "auto"},
-                ),
-                width=2,
-                align="center",
-            ),
-            dbc.Col(
-                dbc.NavLink("Explore MRI Data", href="/page-1", active="exact"),
-                width=10,
-            ),
-        ],
-        align="center",
-    )
-
-    ai_link = dbc.Row(
-        [
-            dbc.Col(
-                html.Img(
-                    src=get_asset_url("robot_emoji.jpeg"),
-                    style={"width": "40px", "height": "auto"},
-                ),
-                width=2,
-            ),
-            dbc.Col(
-                dbc.NavLink(
-                    "AI: Hormones to Hippocampus Shape", href="/page-2", active="exact"
-                ),
-                width=10,
-            ),
-        ],
-        align="center",
-    )
+    headers = []
+    for elem in sidebar_elems:
+        if elem.active:
+            compns = elem.to_dash(page_register)
+            headers.append(compns[0])
 
     return html.Div(
         [
@@ -171,11 +121,7 @@ def sidebar():
                 className="lead",
             ),
             dbc.Nav(
-                [
-                    home_link,
-                    mri_link,
-                    ai_link,
-                ],
+                headers,
                 vertical=True,
                 pills=True,
             ),
@@ -250,20 +196,18 @@ def homepage():
         fluid=True,
     )
 
-    page = dbc.Row(
-        [
-            dbc.Col(sm=1),
-            dbc.Col(contents_container, sm=10),
-            dbc.Col(sm=1),
-        ]
-    )
-
-    register_page("/", page)
-
-    return page
+    return [
+        dbc.Row(
+            [
+                dbc.Col(sm=1),
+                dbc.Col(contents_container, sm=10),
+                dbc.Col(sm=1),
+            ]
+        )
+    ]
 
 
-def explore_data(mri_explorer):
+def mri_page(mri_explorer):
     """Return the content of the data exploration page."""
     study_row = dbc.Row(
         [dbc.Col(md=1), dbc.Col(img_study_timeline(), md=10), dbc.Col(md=1)],
@@ -343,17 +287,15 @@ def explore_data(mri_explorer):
         fluid=True,
     )
 
-    page = dbc.Row(
-        [
-            dbc.Col(sm=1),
-            dbc.Col(contents_container, sm=10),
-            dbc.Col(sm=1),
-        ]
-    )
-
-    register_page("/page-1", page)
-
-    return page
+    return [
+        dbc.Row(
+            [
+                dbc.Col(sm=1),
+                dbc.Col(contents_container, sm=10),
+                dbc.Col(sm=1),
+            ]
+        )
+    ]
 
 
 def ai_hormone_prediction(mesh_explorer):
@@ -450,20 +392,18 @@ def ai_hormone_prediction(mesh_explorer):
         fluid=True,
     )
 
-    page = dbc.Row(
-        [
-            dbc.Col(sm=1),
-            dbc.Col(contents_container, sm=10),
-            dbc.Col(sm=1),
-        ]
-    )
-
-    register_page("/page-2", page)
-
-    return page
+    return [
+        dbc.Row(
+            [
+                dbc.Col(sm=1),
+                dbc.Col(contents_container, sm=10),
+                dbc.Col(sm=1),
+            ]
+        )
+    ]
 
 
-def app_layout():
+def app_layout(sidebar_elems, page_register):
     # the styles for the main content position it to the right of the sidebar and
     # add some padding.
     CONTENT_STYLE = {
@@ -476,7 +416,7 @@ def app_layout():
     return html.Div(
         [
             dcc.Location(id="url"),
-            sidebar(),
+            sidebar(sidebar_elems, page_register),
             content,
         ]
     )
