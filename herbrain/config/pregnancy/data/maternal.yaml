@@ -1,43 +1,5 @@
-# TODO: needs to be updated
-mri:
-  _target_: polpo.preprocessing.Pipeline
-  steps:
-    - _target_: polpo.preprocessing.load.pregnancy.PregnancyPilotMriLoader
-      as_dict: false
-    - _target_: polpo.preprocessing.Sorter
-    - _target_: polpo.preprocessing.Truncater # for debugging
-      value: null
-    - _target_: polpo.preprocessing.Map
-      n_jobs: -1
-      verbose: 1
-      step:
-        _target_: polpo.preprocessing.mri.MriImageLoader
-
-hormones: # outputs df; may contain None
-  _target_: polpo.preprocessing.Pipeline
-  steps:
-    - _target_: polpo.preprocessing.load.pregnancy.DenseMaternalCsvDataLoader
-      pilot: true
-    - _target_: polpo.preprocessing.pd.Drop
-      labels: 27
-
-hormones_gest_week: # outputs dict
-  _target_: polpo.preprocessing.Pipeline
-  data: ${data:hormones}
-  steps:
-    - _target_: polpo.preprocessing.pd.ColumnsSelector
-      column_names: gestWeek
-    - _target_: polpo.preprocessing.pd.SeriesToDict
-
-hormones_for_pred: # outputs dict
-  _target_: polpo.preprocessing.Pipeline
-  data: ${data:hormones}
-  steps:
-    - _target_: polpo.preprocessing.pd.ColumnsSelector
-      column_names: ${var:hormones_ordering}
-    - _target_: polpo.preprocessing.pd.Dropna
-    - _target_: polpo.preprocessing.pd.DfToDict
-      orient: index
+defaults:
+  - base
 
 registered_meshes: # outputs dict of meshes (key is sessionID)
   _target_: polpo.preprocessing.Pipeline
@@ -68,28 +30,6 @@ registered_meshes: # outputs dict of meshes (key is sessionID)
       step:
         _target_: polpo.preprocessing.mesh.conversion.TrimeshFromPv
 
-template_image:
-  _target_: polpo.preprocessing.Pipeline
-  steps:
-    - _target_: polpo.preprocessing.load.pregnancy.PregnancyPilotMriLoader
-      subset:
-        - 1
-    - _target_: polpo.preprocessing.ListSqueeze
-    - _target_: polpo.preprocessing.mri.MriImageLoader
-      return_affine: True
-
-# TODO: needs to be updated
-template_mesh:
-  _target_: polpo.preprocessing.Pipeline
-  steps:
-    - _target_: polpo.preprocessing.Constant
-      value: ${data:template_image}
-    - _target_: polpo.preprocessing.IndexSelector
-      index: 0
-    - _target_: polpo.preprocessing.mri.SkimageMarchingCubes
-      return_values: false
-    - _target_: polpo.preprocessing.mesh.conversion.TrimeshFromData
-
 reference_image:
   _target_: polpo.preprocessing.Pipeline
   steps:
@@ -99,36 +39,3 @@ reference_image:
     - _target_: polpo.preprocessing.ListSqueeze
     - _target_: polpo.preprocessing.mri.MriImageLoader
       return_affine: True
-
-affine_transformation:
-  _target_: polpo.preprocessing.Pipeline
-  steps:
-    - _target_: polpo.preprocessing.Constant
-      value:
-        - ${data:reference_image}
-        - ${data:template_image}
-    - _target_: polpo.preprocessing.Map
-      step:
-        _target_: polpo.preprocessing.IndexSelector
-        index: 1
-    - _target_: polpo.preprocessing.mri.LocalToTemplateTransform
-
-template_bounds:
-  _target_: polpo.preprocessing.Pipeline
-  steps:
-    - _target_: polpo.preprocessing.Constant
-      value: ${data:template_mesh}
-    - _target_: polpo.preprocessing.mesh.qof.TrimeshMeshBounds
-
-bounds:
-  _target_: polpo.preprocessing.Pipeline
-  steps:
-    - _target_: polpo.preprocessing.Constant
-      value: ${data:registered_meshes}
-    - _target_: polpo.preprocessing.dict.DictExtractKey
-      key: 1
-    - _target_: polpo.preprocessing.mesh.clone.TrimeshClone
-    - _target_: polpo.preprocessing.mesh.transform.AffineTransformation
-      transform: ${data:affine_transformation}
-    - _target_: polpo.preprocessing.mesh.qof.TrimeshMeshBounds
-      ratio: 0.2
