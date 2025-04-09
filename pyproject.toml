@@ -34,6 +34,7 @@ app = [
     "scikit-learn",
     "polpo[dash,mri]@git+https://github.com/geometric-intelligence/polpo.git@main",
 ]
+app-extra = ["pyvista"]
 lddmm = [
     "torch",
     "matplotlib",
