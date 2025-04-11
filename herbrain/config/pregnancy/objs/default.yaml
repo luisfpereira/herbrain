@@ -1,0 +1,137 @@
+mri_explorer:
+  id_prefix: mri-
+  _target_: polpo.dash.components.MriExplorer
+  mri_data: ${data:mri}
+  hormones_df: ${data:hormones}
+  sliders:
+    _target_: polpo.dash.components.MriSliders
+    components:
+      - _target_: polpo.dash.components.Slider
+        var_def: ${var:sessionID}
+      - _target_: polpo.dash.components.Slider
+        var_def: ${var:mri_x}
+        step: 5
+      - _target_: polpo.dash.components.Slider
+        var_def: ${var:mri_y}
+        step: 5
+      - _target_: polpo.dash.components.Slider
+        var_def: ${var:mri_z}
+        step: 5
+    trims:
+      - - 20
+        - 40
+      - 50
+      - 70
+  session_info:
+    _target_: polpo.dash.components.ComponentGroup
+    title: Session Information
+    components:
+      - _target_: polpo.dash.components.DepVar
+        var_def: ${var:sessionID}
+      - _target_: polpo.dash.components.DepVar
+        var_def: ${var:gestWeek}
+      - _target_: polpo.dash.components.DepVar
+        var_def: ${var:estro}
+      - _target_: polpo.dash.components.DepVar
+        var_def: ${var:lh}
+      - _target_: polpo.dash.components.DepVar
+        var_def: ${var:EndoStatus}
+      - _target_: polpo.dash.components.DepVar
+        var_def: ${var:trimester}
+
+mesh_explorer:
+  _target_: polpo.dash.components.MultipleModelsMeshExplorer
+  _convert_: object
+  graph:
+    _target_: polpo.dash.components.Graph
+    id_: mesh-plot
+    plotter:
+      _target_: polpo.plot.mesh.MeshesPlotter
+      plotters:
+        - _target_: polpo.plot.mesh.MeshPlotter
+      overlay_plotter:
+        _target_: polpo.plot.mesh.StaticMeshPlotter
+        mesh: ${data:template_mesh}
+      bounds: ${data:bounds}
+      overlay_bounds: ${data:template_bounds}
+  models:
+    - ${model:week_mesh}
+    - ${model:hormones_mesh}
+  inputs:
+    # week
+    - _target_: polpo.dash.components.Slider
+      var_def: ${var:gestWeek}
+    # hormones
+    - _target_: polpo.dash.components.ComponentGroup
+      ordering: ${var:hormones_ordering}
+      components:
+        - _target_: polpo.dash.components.Slider
+          var_def: ${var:estro}
+          step: 500
+          label_style:
+            fontSize: 30
+            display: "block"
+        - _target_: polpo.dash.components.Slider
+          var_def: ${var:prog}
+          step: 3
+          label_style:
+            fontSize: 30
+            display: "block"
+        - _target_: polpo.dash.components.Slider
+          var_def: ${var:lh}
+          step: 0.05
+          label_style:
+            fontSize: 30
+            display: "block"
+  checkbox_labels:
+    - - 1
+      - Show Full Brain
+  button_label: Click Here to Toggle Between Gestational Week vs Hormone Value Prediction
+
+# sidebar
+sidebar_elems:
+  # home
+  - _target_: polpo.dash.components.SidebarElem
+    active: true
+    tab_header:
+      _target_: polpo.dash.components.SidebarHeader
+      href: /
+      text: Home
+      image_url: home_emoji.jpeg
+    page:
+      _target_: polpo.dash.components.FunctionComponent
+      func:
+        _target_: polpo.preprocessing.EvalFromImport
+        import_: herbrain.pregnancy.page_content.homepage
+
+  # mri explorer
+  - _target_: polpo.dash.components.SidebarElem
+    active: true
+    tab_header:
+      _target_: polpo.dash.components.SidebarHeader
+      href: /page-1
+      text: Explore MRI Data
+      image_url: brain_emoji.jpeg
+      image_width: 40
+    page:
+      _target_: polpo.dash.components.FunctionComponent
+      func:
+        _target_: polpo.preprocessing.EvalFromImport
+        import_: herbrain.pregnancy.page_content.mri_page
+      mri_explorer: ${obj:mri_explorer}
+
+  # mesh explorer
+  - _target_: polpo.dash.components.SidebarElem
+    active: true
+    tab_header:
+      _target_: polpo.dash.components.SidebarHeader
+      href: /page-2
+      text: "AI: Hormones to Hippocampus Shape"
+      image_url: robot_emoji.jpeg
+      image_width: 40
+    page:
+      _target_: polpo.dash.components.FunctionComponent
+      func:
+        _target_: polpo.preprocessing.EvalFromImport
+        import_: herbrain.pregnancy.page_content.ai_hormone_prediction
+      mesh_explorer: ${obj:mesh_explorer}

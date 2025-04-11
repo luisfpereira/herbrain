@@ -1,8 +1,11 @@
 import logging
+import os
+from pathlib import Path
 from typing import List, Optional
 
 import typer
 from hydra import compose, initialize
+from polpo.hydra import DefaultsResolver
 
 app = typer.Typer()
 
@@ -25,6 +28,16 @@ def pregnancy_app(
 ):
     """Launch pregnancy app."""
     from herbrain.pregnancy.app import my_app
+
+    if overrides is None:
+        overrides = []
+
+    overrides = DefaultsResolver().resolve(
+        Path(os.path.dirname(__file__)) / config_path,
+        key="data",
+        overrides=overrides,
+        config_name=config_name,
+    )
 
     return _launch_app(my_app, overrides, config_path, config_name, logging_level)
 
