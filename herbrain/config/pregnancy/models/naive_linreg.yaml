@@ -21,7 +21,7 @@ week_mesh:
         step:
           _target_: polpo.preprocessing.Map
           step:
-            _target_: polpo.preprocessing.ToList
+            _target_: polpo.preprocessing.WrapInList
 
 hormones_mesh:
   _target_: polpo.models.SklearnLikeModelFactory

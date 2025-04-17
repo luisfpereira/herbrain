@@ -33,9 +33,8 @@ data:
         local_basename: adele
       - _target_: polpo.preprocessing.path.FileFinder
         rules:
-          - _target_: polpo.preprocessing.path.FileRule
-            value: .ply
-            func: endswith
+          - _target_: polpo.preprocessing.path.IsFileType
+            ext: ply
       - _target_: polpo.preprocessing.Sorter
       - _target_: polpo.preprocessing.BranchingPipeline
         branches:
