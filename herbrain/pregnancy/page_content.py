@@ -164,7 +164,7 @@ def homepage():
 
     acknowledgements_text = html.P(
         [
-            "This application was developed by Adele Myers and Nina Miolane and made possible by the support of the Women's Brain Health Initiative. Brain MRI data was collected in the study: Pritschet, Taylor, Cossio, Santander, Grotzinger, Faskowitz, Handwerker, Layher, Chrastil, Jacobs. Neuroanatomical changes observed over the course of a human pregnancy. (2024).",
+            "This application was developed by Adele Myers, Luìs F. Pereira, Sarah Kushner, and Nina Miolane and made possible by the support of the Women's Brain Health Initiative. Brain MRI data was collected in the study: Pritschet, Taylor, Cossio, Santander, Grotzinger, Faskowitz, Handwerker, Layher, Chrastil, Jacobs. Neuroanatomical changes observed over the course of a human pregnancy. (2024).",
         ],
         style={"fontSize": S.text_fontsize, "fontFamily": S.text_fontfamily},
     )
@@ -220,7 +220,7 @@ def mri_page(mri_explorer):
                 dbc.Col(
                     html.Img(
                         src=get_asset_url("brain_emoji.jpeg"),
-                        style={"width": "100px", "height": "auto"},
+                        style={"width": "70px", "height": "auto"},
                     ),
                     width=1,
                 ),
@@ -306,7 +306,7 @@ def ai_hormone_prediction(mesh_explorer):
                 dbc.Col(
                     html.Img(
                         src=get_asset_url("robot_emoji.jpeg"),
-                        style={"width": "100px", "height": "auto"},
+                        style={"width": "70px", "height": "auto"},
                     ),
                     width=1,
                 ),
@@ -345,14 +345,14 @@ def ai_hormone_prediction(mesh_explorer):
         ],
     )
 
-    substructure_legend_row = dbc.Row(
-        [
-            html.Img(
-                src=get_asset_url("substructure_legend.png"),
-                style={"width": "100%", "height": "auto"},
-            ),
-        ]
-    )
+    # substructure_legend_row = dbc.Row(
+    #     [
+    #         html.Img(
+    #             src=get_asset_url("substructure_legend.png"),
+    #             style={"width": "100%", "height": "auto"},
+    #         ),
+    #     ]
+    # )
 
     contents_container = dbc.Container(
         [
@@ -382,7 +382,7 @@ def ai_hormone_prediction(mesh_explorer):
         ]
         + mesh_explorer.to_dash()
         + [
-            substructure_legend_row,
+            # substructure_legend_row,
             html.Div(style={"height": S.space_between_sections}),
             html.Hr(),
             acknowledgements_title(),
