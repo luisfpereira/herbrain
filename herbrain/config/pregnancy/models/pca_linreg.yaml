@@ -1,18 +1,20 @@
 week_mesh:
   _target_: polpo.models.SklearnLikeModelFactory
   model:
-    _target_: polpo.models.DimReductionBasedMeshRegressor
+    _target_: polpo.models.ObjectRegressor
     model:
       _target_: sklearn.linear_model.LinearRegression
-    dim_reduction:
-      _target_: sklearn.decomposition.PCA
-      n_components: 4
-    y_smoother: false
-    mesh_transform:
-      _target_: polpo.preprocessing.Map
-      step:
-        - _target_: polpo.preprocessing.mesh.transform.AffineTransformation
-          transform: ${data:affine_transformation}
+    objs2y:
+      _target_: polpo.models.Meshes2Comps
+      dim_reduction:
+        _target_: sklearn.decomposition.PCA
+        n_components: 4
+      smoother: false
+      mesh_transform:
+        _target_: polpo.preprocessing.Map
+        step:
+          - _target_: polpo.preprocessing.mesh.transform.AffineTransformation
+            transform: ${data:affine_transformation}
   data:
     - ${data:hormones_gest_week}
     - ${data:registered_meshes}
@@ -31,22 +33,26 @@ week_mesh:
 hormones_mesh:
   _target_: polpo.models.SklearnLikeModelFactory
   model:
-    _target_: polpo.models.DimReductionBasedMeshRegressor
+    _target_: polpo.models.ObjectRegressor
     model:
       _target_: sklearn.linear_model.LinearRegression
-    dim_reduction:
-      _target_: sklearn.decomposition.PCA
-      n_components: 4
-    x_scaler:
-      _target_: sklearn.preprocessing.StandardScaler
-      with_mean: True
-      with_std: True
-    y_smoother: false
-    mesh_transform:
-      _target_: polpo.preprocessing.Map
-      step:
-        - _target_: polpo.preprocessing.mesh.transform.AffineTransformation
-          transform: ${data:affine_transformation}
+    objs2y:
+      _target_: polpo.models.Meshes2Comps
+      dim_reduction:
+        _target_: sklearn.decomposition.PCA
+        n_components: 4
+      smoother: false
+      mesh_transform:
+        _target_: polpo.preprocessing.Map
+        step:
+          - _target_: polpo.preprocessing.mesh.transform.AffineTransformation
+            transform: ${data:affine_transformation}
+    x2x:
+      _target_: polpo.models.X2xPipeline
+      scaler:
+        _target_: sklearn.preprocessing.StandardScaler
+        with_mean: True
+        with_std: True
   data:
     - ${data:hormones_for_pred}
     - ${data:registered_meshes}

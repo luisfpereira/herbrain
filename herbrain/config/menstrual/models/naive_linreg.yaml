@@ -1,8 +1,10 @@
 _target_: polpo.models.SklearnLikeModelFactory
 model:
-  _target_: polpo.models.VertexBasedMeshRegressor
+  _target_: polpo.models.ObjectRegressor
   model:
     _target_: sklearn.linear_model.LinearRegression
+  objs2y:
+    _target_: polpo.models.Meshes2FlatVertices
 data:
   - ${data:hormones_for_pred}
   - ${data:registered_meshes}
