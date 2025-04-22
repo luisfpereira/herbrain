@@ -40,7 +40,7 @@ mri_explorer:
         var_def: ${var:trimester}
 
 mesh_explorer:
-  _target_: polpo.dash.components.MultipleModelsMeshExplorer
+  _target_: polpo.dash.components.MultiModelsMeshExplorer
   _convert_: object
   graph:
     _target_: polpo.dash.components.Graph
