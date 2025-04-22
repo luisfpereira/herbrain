@@ -58,3 +58,27 @@ hormones_ordering:
   - lh
 
 substructures_legend: true
+
+session_week_mesh_merger:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.dict.DictMerger
+    - _target_: polpo.preprocessing.NestingSwapper
+    - _target_: polpo.preprocessing.IndexMap
+      index: 0
+      step:
+        _target_: polpo.preprocessing.Map
+        step:
+          _target_: polpo.preprocessing.WrapInList
+
+session_hormones_mesh_merger:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.dict.DictMerger
+    - _target_: polpo.preprocessing.NestingSwapper
+    - _target_: polpo.preprocessing.IndexMap
+      index: 0
+      step:
+        _target_: polpo.preprocessing.Map
+        step:
+          _target_: polpo.preprocessing.dict.DictToValuesList

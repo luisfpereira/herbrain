@@ -1,0 +1,82 @@
+defaults:
+  - base
+
+registered_meshes:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.Constant
+      value: ${var:structs}
+    - _target_: polpo.preprocessing.dict.HashWithIncoming
+      step:
+        _target_: polpo.preprocessing.Map
+        step:
+          _target_: polpo.preprocessing.Pipeline
+          steps:
+            - _target_: polpo.preprocessing.PartiallyInitializedStep
+              Step:
+                _target_: polpo.preprocessing.Lambda
+                args: [struct, left, as_dict]
+                imports:
+                  - polpo.preprocessing.load.pregnancy.DenseMaternalMeshLoader
+                expr: DenseMaternalMeshLoader(struct=struct, left=left, as_dict=as_dict)
+              pass_data: false
+              _struct:
+                _target_: polpo.preprocessing.Lambda
+                args: [name]
+                expr: "name.split('_')[-1]"
+              _left:
+                _target_: polpo.preprocessing.Lambda
+                args: [name]
+                expr: "name.split('_')[0] == 'L'"
+              as_dict: true
+            - _target_: polpo.preprocessing.dict.DictMap
+              step:
+                _target_: polpo.preprocessing.mesh.io.PvReader
+    - _target_: polpo.preprocessing.dict.DictMap
+      step:
+        _target_: polpo.preprocessing.PartiallyInitializedStep
+        Step:
+          _target_: polpo.preprocessing.Lambda
+          args: [target, max_iterations]
+          expr: "DictMap(PvAlign(target=target, max_iterations=max_iterations) + TrimeshFromPv())"
+          imports:
+            - polpo.preprocessing.mesh.registration.PvAlign
+            - polpo.preprocessing.dict.DictMap
+            - polpo.preprocessing.mesh.conversion.TrimeshFromPv
+        _target:
+          _target_: polpo.preprocessing.Lambda
+          args: [meshes]
+          expr: "meshes[list(meshes.keys())[0]]"
+        max_iterations: 500
+
+reference_image:
+  # as maternal (wrong)
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.load.pregnancy.DenseMaternalSegmentationsLoader
+      subset: [1]
+    - _target_: polpo.preprocessing.ListSqueeze
+    - _target_: polpo.preprocessing.mri.MriImageLoader
+      return_affine: True
+
+bounds: null
+
+n_structs:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.Constant
+      value: ${var:structs}
+    - _target_: polpo.preprocessing.Lambda
+      args: [x]
+      expr: len(x)
+
+mesh_plotters:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.Constant
+      value: ${data:n_structs}
+    - _target_: polpo.preprocessing.Lambda
+      args: [x]
+      expr: "[MeshPlotter() for _ in range(x)]"
+      imports:
+        - polpo.plot.mesh.MeshPlotter

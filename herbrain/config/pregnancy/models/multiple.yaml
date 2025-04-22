@@ -5,7 +5,8 @@ week_mesh:
     model:
       _target_: sklearn.linear_model.LinearRegression
     objs2y:
-      _target_: polpo.models.Meshes2Comps
+      _target_: polpo.models.DictMeshes2Comps
+      n_pipes: ${data:n_structs}
       dim_reduction:
         _target_: sklearn.decomposition.PCA
         n_components: 4
@@ -18,17 +19,7 @@ week_mesh:
   data:
     - ${data:hormones_gest_week}
     - ${data:registered_meshes}
-  pipeline:
-    _target_: polpo.preprocessing.Pipeline
-    steps:
-      - _target_: polpo.preprocessing.dict.DictMerger
-      - _target_: polpo.preprocessing.NestingSwapper
-      - _target_: polpo.preprocessing.IndexMap
-        index: 0
-        step:
-          _target_: polpo.preprocessing.Map
-          step:
-            _target_: polpo.preprocessing.WrapInList
+  pipeline: ${var:session_week_mesh_merger}
 
 hormones_mesh:
   _target_: polpo.models.SklearnLikeModelFactory
@@ -37,7 +28,8 @@ hormones_mesh:
     model:
       _target_: sklearn.linear_model.LinearRegression
     objs2y:
-      _target_: polpo.models.Meshes2Comps
+      _target_: polpo.models.DictMeshes2Comps
+      n_pipes: ${data:n_structs}
       dim_reduction:
         _target_: sklearn.decomposition.PCA
         n_components: 4
@@ -56,14 +48,4 @@ hormones_mesh:
   data:
     - ${data:hormones_for_pred}
     - ${data:registered_meshes}
-  pipeline:
-    _target_: polpo.preprocessing.Pipeline
-    steps:
-      - _target_: polpo.preprocessing.dict.DictMerger
-      - _target_: polpo.preprocessing.NestingSwapper
-      - _target_: polpo.preprocessing.IndexMap
-        index: 0
-        step:
-          _target_: polpo.preprocessing.Map
-          step:
-            _target_: polpo.preprocessing.dict.DictToValuesList
+  pipeline: ${var:session_hormones_mesh_merger}
