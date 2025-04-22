@@ -1,7 +1,7 @@
 defaults:
   - _self_
-  # pilot, maternal
-  - data: pilot
+  # hipp, maternal
+  - data: hipp
   # pca_linreg, naive_linreg
   - models: pca_linreg
   - vars: ${data}

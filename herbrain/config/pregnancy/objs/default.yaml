@@ -135,3 +135,4 @@ sidebar_elems:
         _target_: polpo.preprocessing.EvalFromImport
         import_: herbrain.pregnancy.page_content.ai_hormone_prediction
       mesh_explorer: ${obj:mesh_explorer}
+      show_legend: ${var:substructures_legend}
