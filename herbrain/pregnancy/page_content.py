@@ -164,7 +164,7 @@ def homepage():
 
     acknowledgements_text = html.P(
         [
-            "This application was developed by Adele Myers and Nina Miolane and made possible by the support of the Women's Brain Health Initiative. Brain MRI data was collected in the study: Pritschet, Taylor, Cossio, Santander, Grotzinger, Faskowitz, Handwerker, Layher, Chrastil, Jacobs. Neuroanatomical changes observed over the course of a human pregnancy. (2024).",
+            "This application was developed by Adele Myers, Sarah Kushner, Luís F. Pereira, and Nina Miolane and made possible by the support of the Women's Brain Health Initiative. Brain MRI data was collected in the study: Pritschet, Taylor, Cossio, Santander, Grotzinger, Faskowitz, Handwerker, Layher, Chrastil, Jacobs. Neuroanatomical changes observed over the course of a human pregnancy. (2024).",
         ],
         style={"fontSize": S.text_fontsize, "fontFamily": S.text_fontfamily},
     )
@@ -220,7 +220,7 @@ def mri_page(mri_explorer):
                 dbc.Col(
                     html.Img(
                         src=get_asset_url("brain_emoji.jpeg"),
-                        style={"width": "100px", "height": "auto"},
+                        style={"width": "70px", "height": "auto"},
                     ),
                     width=1,
                 ),
@@ -327,7 +327,7 @@ def ai_hormone_prediction(mesh_explorer, show_legend=True):
                 dbc.Col(
                     html.Img(
                         src=get_asset_url("robot_emoji.jpeg"),
-                        style={"width": "100px", "height": "auto"},
+                        style={"width": "70px", "height": "auto"},
                     ),
                     width=1,
                 ),
