@@ -1,9 +1,9 @@
 defaults:
   - _self_
-  # pilot, maternal
-  - data: pilot
-  # pca_linreg, naive_linreg
-  - models: pca_linreg
+  # hipp, maternal, multiple
+  - data: hipp
+  # TODO: make combinatorial; can update structure
+  - models: ${data}
   - vars: ${data}
   - objs: ${data}
 

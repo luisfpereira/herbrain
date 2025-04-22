@@ -40,7 +40,7 @@ mri_explorer:
         var_def: ${var:trimester}
 
 mesh_explorer:
-  _target_: polpo.dash.components.MultipleModelsMeshExplorer
+  _target_: polpo.dash.components.MultiModelsMeshExplorer
   _convert_: object
   graph:
     _target_: polpo.dash.components.Graph
@@ -135,3 +135,4 @@ sidebar_elems:
         _target_: polpo.preprocessing.EvalFromImport
         import_: herbrain.pregnancy.page_content.ai_hormone_prediction
       mesh_explorer: ${obj:mesh_explorer}
+      show_legend: ${var:substructures_legend}

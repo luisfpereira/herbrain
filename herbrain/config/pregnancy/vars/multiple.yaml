@@ -1,0 +1,71 @@
+defaults:
+  - default
+
+substructures_legend: false
+
+structs:
+  - BrStem
+  - L_Thal
+  - R_Thal
+  - L_Caud
+  - R_Caud
+  - L_Puta
+  - R_Puta
+  - L_Pall
+  - R_Pall
+  - L_Hipp
+  - R_Hipp
+  - L_Amyg
+  - R_Amyg
+  - L_Accu
+  - R_Accu
+
+session_week_mesh_merger:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.IndexMap
+      index: 1
+      step:
+        _target_: polpo.preprocessing.dict.NestedDictSwapper
+    - _target_: polpo.preprocessing.dict.DictMerger
+    - _target_: polpo.preprocessing.NestingSwapper
+    - _target_: polpo.preprocessing.IndexMap
+      index: 0
+      step:
+        _target_: polpo.preprocessing.Lambda
+        args: [x]
+        expr: "asarray(x)[:, None]"
+        imports:
+          - numpy.asarray
+    - _target_: polpo.preprocessing.IndexMap
+      index: 1
+      step:
+        _target_: polpo.preprocessing.dict.ListDictSwapper
+
+session_hormones_mesh_merger:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.IndexMap
+      index: 1
+      step:
+        _target_: polpo.preprocessing.dict.NestedDictSwapper
+    - _target_: polpo.preprocessing.dict.DictMerger
+    - _target_: polpo.preprocessing.NestingSwapper
+    - _target_: polpo.preprocessing.IndexMap
+      index: 0
+      step:
+        _target_: polpo.preprocessing.Map
+        step:
+          _target_: polpo.preprocessing.dict.DictToValuesList
+    - _target_: polpo.preprocessing.IndexMap
+      index: 0
+      step:
+        _target_: polpo.preprocessing.Lambda
+        args: [x]
+        expr: "asarray(x)"
+        imports:
+          - numpy.asarray
+    - _target_: polpo.preprocessing.IndexMap
+      index: 1
+      step:
+        _target_: polpo.preprocessing.dict.ListDictSwapper

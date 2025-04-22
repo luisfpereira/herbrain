@@ -264,6 +264,26 @@ def mri_page(mri_explorer):
         ],
     )
 
+    instructions_text = dbc.Row(
+        [
+            html.P(
+                [
+                    (
+                        "Use the 'Session Number' slider to flip through T1 brain data from each MRI session. "
+                        "Use the X, Y, Z coordinate sliders to choose the MRI slice. "
+                        "Additional information about the session will be displayed to the right of the sliders."
+                    )
+                ],
+                style={
+                    "fontSize": S.text_fontsize,
+                    "fontFamily": S.text_fontfamily,
+                    "marginLeft": S.margin_side,
+                    "marginRight": S.margin_side,
+                },
+            ),
+        ],
+    )
+
     contents_container = dbc.Container(
         [
             *banner,
@@ -275,6 +295,7 @@ def mri_page(mri_explorer):
             html.Hr(),
             instructions_title(),
             html.Div(style={"height": S.space_between_title_and_content}),
+            instructions_text,
         ]
         + mri_explorer.to_dash()
         + [
@@ -298,7 +319,7 @@ def mri_page(mri_explorer):
     ]
 
 
-def ai_hormone_prediction(mesh_explorer):
+def ai_hormone_prediction(mesh_explorer, show_legend=True):
     """Return the content of the AI hormone prediction page."""
     banner = [
         dbc.Row(
@@ -345,14 +366,19 @@ def ai_hormone_prediction(mesh_explorer):
         ],
     )
 
-    # substructure_legend_row = dbc.Row(
-    #     [
-    #         html.Img(
-    #             src=get_asset_url("substructure_legend.png"),
-    #             style={"width": "100%", "height": "auto"},
-    #         ),
-    #     ]
-    # )
+    if show_legend:
+        substructure_legend_row = [
+            dbc.Row(
+                [
+                    html.Img(
+                        src=get_asset_url("substructure_legend.png"),
+                        style={"width": "100%", "height": "auto"},
+                    ),
+                ]
+            )
+        ]
+    else:
+        substructure_legend_row = []
 
     contents_container = dbc.Container(
         [
@@ -381,8 +407,8 @@ def ai_hormone_prediction(mesh_explorer):
             ),
         ]
         + mesh_explorer.to_dash()
+        + substructure_legend_row
         + [
-            # substructure_legend_row,
             html.Div(style={"height": S.space_between_sections}),
             html.Hr(),
             acknowledgements_title(),

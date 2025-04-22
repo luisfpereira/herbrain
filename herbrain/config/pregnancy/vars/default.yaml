@@ -4,45 +4,81 @@ estro:
   unit: pg/ml
   min_value: 4100
   max_value: 12400
+
 prog:
   _target_: polpo.dash.variables.VarDef
   name: Progesterone
   unit: ng/ml
   min_value: 54
   max_value: 103
+
 lh:
   _target_: polpo.dash.variables.VarDef
   name: LH
   unit: ng/ml
   min_value: 0.59
   max_value: 1.45
+
 gestWeek:
   _target_: polpo.dash.variables.VarDef
   name: Gestational Week
   min_value: 0
   max_value: 36
   default_value: 15
+
 EndoStatus:
   _target_: polpo.dash.variables.VarDef
   name: Pregnancy status
+
 trimester:
   _target_: polpo.dash.variables.VarDef
   name: Trimester
+
 sessionID:
   _target_: polpo.dash.variables.VarDef
   name: Session Number
   min_value: 1
   max_value: 26
+
 mri_x:
   _target_: polpo.dash.variables.VarDef
   name: X Coordinate (Changes Side View)
+
 mri_y:
   _target_: polpo.dash.variables.VarDef
   name: Y Coordinate (Changes Front View)
+
 mri_z:
   _target_: polpo.dash.variables.VarDef
   name: Z Coordinate (Changes Top View)
+
 hormones_ordering:
   - estro
   - prog
   - lh
+
+substructures_legend: true
+
+session_week_mesh_merger:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.dict.DictMerger
+    - _target_: polpo.preprocessing.NestingSwapper
+    - _target_: polpo.preprocessing.IndexMap
+      index: 0
+      step:
+        _target_: polpo.preprocessing.Map
+        step:
+          _target_: polpo.preprocessing.WrapInList
+
+session_hormones_mesh_merger:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.dict.DictMerger
+    - _target_: polpo.preprocessing.NestingSwapper
+    - _target_: polpo.preprocessing.IndexMap
+      index: 0
+      step:
+        _target_: polpo.preprocessing.Map
+        step:
+          _target_: polpo.preprocessing.dict.DictToValuesList
