@@ -264,6 +264,26 @@ def mri_page(mri_explorer):
         ],
     )
 
+    instructions_text = dbc.Row(
+        [
+            html.P(
+                [
+                    (
+                        "Use the 'Session Number' slider to flip through T1 brain data from each MRI session. "
+                        "Use the X, Y, Z coordinate sliders to choose the MRI slice. "
+                        "Additional information about the session will be displayed to the right of the sliders."
+                    )
+                ],
+                style={
+                    "fontSize": S.text_fontsize,
+                    "fontFamily": S.text_fontfamily,
+                    "marginLeft": S.margin_side,
+                    "marginRight": S.margin_side,
+                },
+            ),
+        ],
+    )
+
     contents_container = dbc.Container(
         [
             *banner,
@@ -275,6 +295,7 @@ def mri_page(mri_explorer):
             html.Hr(),
             instructions_title(),
             html.Div(style={"height": S.space_between_title_and_content}),
+            instructions_text,
         ]
         + mri_explorer.to_dash()
         + [
