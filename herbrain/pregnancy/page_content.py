@@ -164,7 +164,7 @@ def homepage():
 
     acknowledgements_text = html.P(
         [
-            "This application was developed by Adele Myers, Luìs F. Pereira, Sarah Kushner, and Nina Miolane and made possible by the support of the Women's Brain Health Initiative. Brain MRI data was collected in the study: Pritschet, Taylor, Cossio, Santander, Grotzinger, Faskowitz, Handwerker, Layher, Chrastil, Jacobs. Neuroanatomical changes observed over the course of a human pregnancy. (2024).",
+            "This application was developed by Adele Myers, Sarah Kushner, Luís F. Pereira, and Nina Miolane and made possible by the support of the Women's Brain Health Initiative. Brain MRI data was collected in the study: Pritschet, Taylor, Cossio, Santander, Grotzinger, Faskowitz, Handwerker, Layher, Chrastil, Jacobs. Neuroanatomical changes observed over the course of a human pregnancy. (2024).",
         ],
         style={"fontSize": S.text_fontsize, "fontFamily": S.text_fontfamily},
     )
