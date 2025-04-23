@@ -49,16 +49,6 @@ registered_meshes:
           expr: "meshes[list(meshes.keys())[0]]"
         max_iterations: 500
 
-reference_image:
-  # as maternal (wrong)
-  _target_: polpo.preprocessing.Pipeline
-  steps:
-    - _target_: polpo.preprocessing.load.pregnancy.DenseMaternalSegmentationsLoader
-      subset: [1]
-    - _target_: polpo.preprocessing.ListSqueeze
-    - _target_: polpo.preprocessing.mri.MriImageLoader
-      return_affine: True
-
 bounds: null
 
 n_structs:
@@ -80,3 +70,15 @@ mesh_plotters:
       expr: "[MeshPlotter() for _ in range(x)]"
       imports:
         - polpo.plot.mesh.MeshPlotter
+
+affine_transformation:
+  _target_: polpo.preprocessing.Pipeline
+  steps:
+    - _target_: polpo.preprocessing.Constant
+      value:
+        _target_: numpy.asarray
+        a:
+          - [1.0, 0.0, 0.0, 25.0]
+          - [0.0, 1.0, 0.0, 28.0]
+          - [0.0, 0.0, 1.0, 23.0]
+          - [0.0, 0.0, 0.0, 1.0]
