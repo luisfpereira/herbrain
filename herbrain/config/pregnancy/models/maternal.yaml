@@ -5,8 +5,7 @@ week_mesh:
     model:
       _target_: sklearn.linear_model.LinearRegression
     objs2y:
-      _target_: polpo.models.DictMeshes2Comps
-      n_pipes: ${data:n_structs}
+      _target_: polpo.models.Meshes2Comps
       dim_reduction:
         _target_: sklearn.decomposition.PCA
         n_components: 4
@@ -17,14 +16,13 @@ week_mesh:
           - _target_: polpo.preprocessing.mesh.transform.AffineTransformation
             transform: ${data:affine_transformation}
     colorizer:
-      _target_: polpo.models.DictMeshColorizer
+      _target_: polpo.models.MeshColorizer
       x_ref:
         _target_: numpy.asarray
         a: 0.5
       delta_lim:
         _target_: numpy.asarray
         a: 15.0
-
   data:
     - ${data:hormones_gest_week}
     - ${data:registered_meshes}
@@ -37,8 +35,7 @@ hormones_mesh:
     model:
       _target_: sklearn.linear_model.LinearRegression
     objs2y:
-      _target_: polpo.models.DictMeshes2Comps
-      n_pipes: ${data:n_structs}
+      _target_: polpo.models.Meshes2Comps
       dim_reduction:
         _target_: sklearn.decomposition.PCA
         n_components: 4
@@ -55,7 +52,7 @@ hormones_mesh:
         with_mean: True
         with_std: True
     colorizer:
-      _target_: polpo.models.DictMeshColorizer
+      _target_: polpo.models.MeshColorizer
       scaling_factor: 2.0
   data:
     - ${data:hormones_for_pred}
