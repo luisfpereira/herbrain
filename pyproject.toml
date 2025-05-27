@@ -42,6 +42,11 @@ lddmm = [
     "pyvista",
     "deformetrica @ git+https://github.com/nguigs/deformetrica@spline-regression",
 ]
+lddmm = [
+    "torch",
+    "matplotlib",
+    "pyvista",
+]
 
 [project.urls]
 repository = "https://github.com/geometric-intelligence/herbrain"
