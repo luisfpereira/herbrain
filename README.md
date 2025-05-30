@@ -6,7 +6,7 @@ HerBrain uses AI for quantifying changes in the female brain during menstruation
 
 ## 🎬 HerBrain App Demo ##
 
-![](HerBrainDemo2025_cropped.gif)
+![](/images/HerBrainDemo2025_cropped.gif)
 
 ## 🎤 Our Public Talk on Womens' Brain Health and AI ##
 
