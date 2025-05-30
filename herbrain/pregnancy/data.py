@@ -212,24 +212,3 @@ class MultipleMaternalMeshesLoader(Pipeline):
                 ),
             ]
         )
-
-
-class SessionInputMultipleMeshToXY(Pipeline):
-    # TODO: improve naming?
-    # TODO: equivalent to DictsToXY: generalize and move to polpo?
-    def __init__(self):
-        x_step = IfCondition(
-            step=Map(step=ppdict.DictToValuesList()),
-            else_step=lambda x: np.asarray(x)[:, None],
-            condition=lambda x: isinstance(x[0], dict),
-        )
-
-        super().__init__(
-            steps=[
-                IndexMap(index=1, step=ppdict.NestedDictSwapper()),
-                ppdict.DictMerger(),
-                NestingSwapper(),
-                IndexMap(index=0, step=x_step),
-                IndexMap(index=1, step=ppdict.ListDictSwapper()),
-            ]
-        )

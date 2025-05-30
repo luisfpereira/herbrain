@@ -23,7 +23,7 @@ from polpo.dash.variables import VarDef
 from polpo.models import DictMeshColorizer, MeshColorizer
 from polpo.plot.mesh import MeshesPlotter, MeshPlotter, StaticMeshPlotter
 from polpo.preprocessing import ListSqueeze
-from polpo.preprocessing.learning import DictsToXY
+from polpo.preprocessing.learning import DictsToXY, NestedDictsToXY
 from polpo.preprocessing.mri import (
     LocalToTemplateTransform,
 )
@@ -39,7 +39,6 @@ from .data import (
     NibImage2Mesh,
     PilotMriImageLoader,
     ReferenceImageLoader,
-    SessionInputMultipleMeshToXY,
     TemplateImageLoader,
 )
 from .models import MeshPCR
@@ -59,7 +58,7 @@ def my_app(cfg, data="hipp"):
     hormones_gest_week = ppd.ColumnToDict("gestWeek")(hormones_df)
 
     if data == "multiple":
-        dicts_to_xy = SessionInputMultipleMeshToXY()
+        dicts_to_xy = NestedDictsToXY()
     else:
         dicts_to_xy = DictsToXY()
 
