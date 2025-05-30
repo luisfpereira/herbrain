@@ -1,12 +1,3 @@
-defaults:
-  - _self_
-  # hipp, maternal, multiple
-  - data: hipp
-  # TODO: make combinatorial; can update structure
-  - models: ${data}
-  - vars: ${data}
-  - objs: ${data}
-
 server:
   debug: false
   use_reloader: false

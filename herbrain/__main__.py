@@ -1,26 +1,31 @@
 import logging
-import os
-from pathlib import Path
+from enum import Enum
 from typing import List, Optional
 
 import typer
 from hydra import compose, initialize
-from polpo.hydra import DefaultsResolver
 
 app = typer.Typer()
 
 
-def _launch_app(my_app, overrides, config_path, config_name, logging_level):
+class PregnancyDataOptions(str, Enum):
+    hipp = "hipp"
+    maternal = "maternal"
+    multiple = "multiple"
+
+
+def _launch_app(my_app, overrides, config_path, config_name, logging_level, **kwargs):
     logging.basicConfig(level=logging_level)
 
     with initialize(version_base=None, config_path=config_path):
         cfg = compose(config_name=config_name, overrides=overrides)
 
-    my_app(cfg)
+    my_app(cfg, **kwargs)
 
 
 @app.command()
 def pregnancy_app(
+    data: PregnancyDataOptions = PregnancyDataOptions.hipp,
     overrides: Optional[List[str]] = typer.Argument(None),
     config_path: str = "config/pregnancy",
     config_name: str = "config",
@@ -32,14 +37,9 @@ def pregnancy_app(
     if overrides is None:
         overrides = []
 
-    overrides = DefaultsResolver().resolve(
-        Path(os.path.dirname(__file__)) / config_path,
-        key="data",
-        overrides=overrides,
-        config_name=config_name,
+    return _launch_app(
+        my_app, overrides, config_path, config_name, logging_level, data=data.value
     )
-
-    return _launch_app(my_app, overrides, config_path, config_name, logging_level)
 
 
 @app.command()
