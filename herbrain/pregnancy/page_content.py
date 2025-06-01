@@ -320,7 +320,7 @@ def mri_page(mri_explorer):
     ]
 
 
-def ai_hormone_prediction(mesh_explorer, show_legend=True):
+def ai_hormone_prediction(mesh_explorer):
     """Return the content of the AI hormone prediction page."""
     banner = [
         dbc.Row(
@@ -356,31 +356,6 @@ def ai_hormone_prediction(mesh_explorer, show_legend=True):
         ],
     )
 
-    acknowledgements_text = dbc.Row(
-        [
-            html.P(
-                [
-                    "Our AI was trained on data from the study: Pritschet, Taylor, Cossio, Santander, Grotzinger, Faskowitz, Handwerker, Layher, Chrastil, Jacobs. Neuroanatomical changes observed over the course of a human pregnancy. (2024)",
-                ],
-                style={"fontSize": S.text_fontsize, "fontFamily": S.text_fontfamily},
-            ),
-        ],
-    )
-
-    if show_legend:
-        substructure_legend_row = [
-            dbc.Row(
-                [
-                    html.Img(
-                        src=get_asset_url("substructure_legend.png"),
-                        style={"width": "100%", "height": "auto"},
-                    ),
-                ]
-            )
-        ]
-    else:
-        substructure_legend_row = []
-
     contents_container = dbc.Container(
         [
             *banner,
@@ -408,13 +383,9 @@ def ai_hormone_prediction(mesh_explorer, show_legend=True):
             ),
         ]
         + mesh_explorer.to_dash()
-        + substructure_legend_row
         + [
             html.Div(style={"height": S.space_between_sections}),
             html.Hr(),
-            acknowledgements_title(),
-            html.Div(style={"height": S.space_between_title_and_content}),
-            acknowledgements_text,
             gpt_chat_component(),
         ],
         fluid=True,

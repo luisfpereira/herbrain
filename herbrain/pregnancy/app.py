@@ -271,7 +271,6 @@ def my_app(cfg, data="hipp"):
             page=FunctionComponent(
                 ai_hormone_prediction,
                 mesh_explorer=mesh_explorer,
-                show_legend=True if data == "hipp" else False,
             ),
         ),
     ]
