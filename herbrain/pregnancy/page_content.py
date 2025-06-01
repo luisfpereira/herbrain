@@ -3,6 +3,7 @@
 import dash_bootstrap_components as dbc
 from dash import dcc, get_asset_url, html
 from polpo.dash.style import STYLE as S
+from .gpt_chat import gpt_chat_component
 
 SIDEBAR_STYLE = {
     "position": "fixed",
@@ -414,6 +415,7 @@ def ai_hormone_prediction(mesh_explorer, show_legend=True):
             acknowledgements_title(),
             html.Div(style={"height": S.space_between_title_and_content}),
             acknowledgements_text,
+            gpt_chat_component(),
         ],
         fluid=True,
     )

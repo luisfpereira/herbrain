@@ -49,6 +49,17 @@ def my_app(cfg, data="hipp"):
     style = cfg.style
     update_style(style)
 
+    # Set OpenAI API key from text file
+    import openai
+    import os
+    api_key_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "openai_api_key.txt")
+    try:
+        with open(api_key_path, "r") as f:
+            openai.api_key = f.read().strip()
+    except FileNotFoundError:
+        print("Warning: openai_api_key.txt not found. GPT chat functionality will not work.")
+        openai.api_key = None
+
     hormones_ordering = ["estro", "prog", "lh"]
 
     mri_data = PilotMriImageLoader(debug=cfg.server.debug)()
@@ -275,6 +286,8 @@ def my_app(cfg, data="hipp"):
     page_register = PageRegister()
 
     app.layout = page_content.app_layout(sidebar_elems, page_register)
+
+    
     app.title = cfg.app.title
 
     server_cfg = cfg.server
