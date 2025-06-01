@@ -59,6 +59,7 @@ Please use these values to provide context in your response."""
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",  # Using a faster model
             messages=[
+                {"role": "system", "content": "You are a neuroscientist specializing in the pregnancy and postpartum brain. You answer questions using short, precise sentences. Only respond to questions related to neuroscience of pregnancy, hormones, and motherhood, and women's brains. If a question is outside this scope, politely decline to answer."},
                 {"role": "system", "content": "You are a helpful assistant explaining brain changes during pregnancy. Focus on the relationship between hormones and brain structure."},
                 {"role": "system", "content": context},
                 {"role": "user", "content": question}
