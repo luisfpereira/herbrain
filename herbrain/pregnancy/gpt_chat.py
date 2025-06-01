@@ -1,12 +1,12 @@
 """Simple GPT chat component for the AI prediction page."""
 
 import dash_bootstrap_components as dbc
-from dash import html, Input, Output, State, callback
+from dash import html, Input, Output, State, callback, dcc
 import openai
 from polpo.dash.style import STYLE as S
 
 def gpt_chat_component():
-    """Create a simple GPT chat component with a text input that shows responses in the same box."""
+    """Create a GPT chat component with message history and chat-like interface."""
     
     return html.Div([
         html.Hr(),
@@ -17,30 +17,73 @@ def gpt_chat_component():
                     "Ask questions about the brain changes during pregnancy, hormone levels, or any other aspects of the data shown on this page.",
                     style={"fontSize": S.text_fontsize, "fontFamily": S.text_fontfamily}
                 ),
-                dbc.Textarea(
-                    id="gpt-input",
-                    placeholder="Type your question here...",
-                    style={"width": "100%", "height": "100px", "marginBottom": "10px"}
+                # Chat history container
+                html.Div(
+                    id="chat-history",
+                    style={
+                        "height": "400px",
+                        "overflowY": "auto",
+                        "border": "1px solid #ddd",
+                        "borderRadius": "5px",
+                        "padding": "10px",
+                        "marginBottom": "10px",
+                        "backgroundColor": "#f8f9fa"
+                    }
                 ),
-                dbc.Button("Ask ChatGPT", id="gpt-submit", color="primary", className="mb-3"),
+                # Input area
+                dbc.Row([
+                    dbc.Col([
+                        dbc.Textarea(
+                            id="gpt-input",
+                            placeholder="Type your question here...",
+                            style={"width": "100%", "height": "100px", "marginBottom": "10px"}
+                        ),
+                        dbc.Button("Ask ChatGPT", id="gpt-submit", color="primary", className="mb-3"),
+                    ])
+                ]),
+                # Store for chat history
+                dcc.Store(id="chat-store", data=[]),
             ])
         ])
     ])
 
+def create_message_bubble(message, is_user=True):
+    """Create a message bubble for the chat."""
+    return html.Div(
+        [
+            html.Div(
+                message,
+                style={
+                    "backgroundColor": "#007bff" if is_user else "#e9ecef",
+                    "color": "white" if is_user else "black",
+                    "padding": "10px",
+                    "borderRadius": "10px",
+                    "marginBottom": "10px",
+                    "maxWidth": "80%",
+                    "marginLeft": "auto" if is_user else "0",
+                    "marginRight": "0" if is_user else "auto",
+                }
+            )
+        ],
+        style={"marginBottom": "10px"}
+    )
+
 @callback(
-    Output("gpt-input", "value"),
+    [Output("chat-history", "children"),
+     Output("gpt-input", "value")],
     Input("gpt-submit", "n_clicks"),
-    State("gpt-input", "value"),
-    State("gestWeek-slider", "value"),  # Gestational week slider
-    State("estro-slider", "value"),     # Estrogen slider
-    State("prog-slider", "value"),      # Progesterone slider
-    State("lh-slider", "value"),        # LH slider
+    [State("gpt-input", "value"),
+     State("chat-store", "data"),
+     State("gestWeek-slider", "value"),  # Gestational week slider
+     State("estro-slider", "value"),     # Estrogen slider
+     State("prog-slider", "value"),      # Progesterone slider
+     State("lh-slider", "value")],       # LH slider
     prevent_initial_call=True
 )
-def update_gpt_response(n_clicks, question, gest_week, estro, prog, lh):
-    """Update the textarea with GPT's response when the submit button is clicked."""
+def update_chat(n_clicks, question, chat_history, gest_week, estro, prog, lh):
+    """Update the chat history when a new message is sent."""
     if not question:
-        return "Please enter a question."
+        return chat_history, ""
     
     try:
         # Initialize OpenAI client
@@ -66,7 +109,21 @@ Please use these values to provide context in your response."""
             ]
         )
         
-        return response.choices[0].message.content
+        # Get the response
+        answer = response.choices[0].message.content
+        
+        # Update chat history
+        new_history = chat_history + [
+            create_message_bubble(question, is_user=True),
+            create_message_bubble(answer, is_user=False)
+        ]
+        
+        return new_history, ""
         
     except Exception as e:
-        return f"Error: {str(e)}" 
+        error_message = f"Error: {str(e)}"
+        new_history = chat_history + [
+            create_message_bubble(question, is_user=True),
+            create_message_bubble(error_message, is_user=False)
+        ]
+        return new_history, "" 
