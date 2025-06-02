@@ -9,7 +9,6 @@ app = typer.Typer()
 
 
 class PregnancyDataOptions(str, Enum):
-    hipp = "hipp"
     maternal = "maternal"
     multiple = "multiple"
 
@@ -25,7 +24,7 @@ def _launch_app(my_app, overrides, config_path, config_name, logging_level, **kw
 
 @app.command()
 def pregnancy_app(
-    data: PregnancyDataOptions = PregnancyDataOptions.hipp,
+    data: PregnancyDataOptions = PregnancyDataOptions.maternal,
     overrides: Optional[List[str]] = typer.Argument(None),
     config_path: str = "config/pregnancy",
     config_name: str = "config",

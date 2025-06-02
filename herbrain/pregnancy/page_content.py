@@ -319,7 +319,7 @@ def mri_page(mri_explorer):
     ]
 
 
-def ai_hormone_prediction(mesh_explorer, show_legend=True):
+def ai_hormone_prediction(mesh_explorer):
     """Return the content of the AI hormone prediction page."""
     banner = [
         dbc.Row(
@@ -366,20 +366,6 @@ def ai_hormone_prediction(mesh_explorer, show_legend=True):
         ],
     )
 
-    if show_legend:
-        substructure_legend_row = [
-            dbc.Row(
-                [
-                    html.Img(
-                        src=get_asset_url("substructure_legend.png"),
-                        style={"width": "100%", "height": "auto"},
-                    ),
-                ]
-            )
-        ]
-    else:
-        substructure_legend_row = []
-
     contents_container = dbc.Container(
         [
             *banner,
@@ -407,7 +393,6 @@ def ai_hormone_prediction(mesh_explorer, show_legend=True):
             ),
         ]
         + mesh_explorer.to_dash()
-        + substructure_legend_row
         + [
             html.Div(style={"height": S.space_between_sections}),
             html.Hr(),

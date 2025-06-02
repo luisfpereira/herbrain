@@ -1,12 +1,8 @@
-import numpy as np
 import polpo.preprocessing.dict as ppdict
 import polpo.preprocessing.pd as ppd
 from polpo.preprocessing import (
-    IfCondition,
-    IndexMap,
     ListSqueeze,
     Map,
-    NestingSwapper,
     PartiallyInitializedStep,
     Pipeline,
     Sorter,
@@ -16,11 +12,9 @@ from polpo.preprocessing.load.pregnancy import (
     DenseMaternalCsvDataLoader,
     DenseMaternalMeshLoader,
     PregnancyPilotMriLoader,
-    PregnancyPilotRegisteredMeshesLoader,
-    PregnancyPilotSegmentationsLoader,
 )
 from polpo.preprocessing.mesh.conversion import TrimeshFromData, TrimeshFromPv
-from polpo.preprocessing.mesh.io import PvReader, TrimeshReader
+from polpo.preprocessing.mesh.io import PvReader
 from polpo.preprocessing.mesh.registration import PvAlign
 from polpo.preprocessing.mri import (
     MriImageLoader,
@@ -82,19 +76,6 @@ class TemplateImageLoader(Pipeline):
         )
 
 
-class ReferenceImageLoader(Pipeline):
-    """Load and parse a single MRI image as a template with affine."""
-
-    def __init__(self):
-        super().__init__(
-            steps=[
-                PregnancyPilotSegmentationsLoader(subset=[1]),
-                ListSqueeze(),
-                MriImageLoader(as_nib=True),
-            ]
-        )
-
-
 class NibImage2Mesh(Pipeline):
     """Generate a surface mesh from a 3D MRI image."""
 
@@ -104,33 +85,6 @@ class NibImage2Mesh(Pipeline):
                 lambda x: x.get_fdata(),
                 SkimageMarchingCubes(return_values=False),
                 TrimeshFromData(),
-            ]
-        )
-
-
-class HippRegisteredMeshesLoader(Pipeline):
-    """Load and parse registered meshes per session."""
-
-    def __init__(self):
-        super().__init__(
-            steps=[
-                PregnancyPilotRegisteredMeshesLoader(
-                    method="deformetrica", as_dict=True
-                ),
-                ppdict.DictMap(step=TrimeshReader()),
-            ]
-        )
-
-
-class HippReferenceImagePipe(Pipeline):
-    """Load a single segmentation MRI image with its affine."""
-
-    def __init__(self):
-        super().__init__(
-            steps=[
-                PregnancyPilotSegmentationsLoader(subset=[1]),
-                ListSqueeze(),
-                PilotMriImageLoader(return_affine=True),
             ]
         )
 
