@@ -29,7 +29,6 @@ app = [
     "numpy",
     "pandas",
     "plotly",
-    "kaleido",
     "trimesh",
     "requests",
     "scikit-learn",
