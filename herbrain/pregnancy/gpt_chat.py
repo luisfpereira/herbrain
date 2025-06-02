@@ -1,7 +1,7 @@
 """Simple GPT chat component for the AI prediction page."""
 
 import dash_bootstrap_components as dbc
-from dash import html, Input, Output, State, callback, dcc
+from dash import html, Input, Output, State, callback, dcc, ctx
 import openai
 from polpo.dash.style import STYLE as S
 
@@ -126,4 +126,16 @@ Please use these values to provide context in your response."""
             create_message_bubble(question, is_user=True),
             create_message_bubble(error_message, is_user=False)
         ]
-        return new_history, "" 
+        return new_history, ""
+
+@callback(
+    Output("gpt-submit", "n_clicks"),
+    Input("gpt-input", "n_submit"),
+    State("gpt-submit", "n_clicks"),
+    prevent_initial_call=True
+)
+def handle_enter(n_submit, n_clicks):
+    """Handle Enter key press in the textarea."""
+    if n_submit is None:
+        return n_clicks
+    return (n_clicks or 0) + 1 
