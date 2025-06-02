@@ -16,23 +16,10 @@ def gpt_chat_component():
         html.Hr(),
         dbc.Row([
             dbc.Col([
-                html.H4("Ask ChatGPT about the data", style={"fontSize": S.title_fontsize}),
+                html.H4("Ask the AI neurobot what the changes mean for your brain", style={"fontSize": S.title_fontsize}),
                 html.P(
-                    "Ask questions about the brain changes during pregnancy, hormone levels, or any other aspects of the data shown on this page.",
-                    style={"fontSize": S.text_fontsize, "fontFamily": S.text_fontfamily}
-                ),
-                # Chat history container
-                html.Div(
-                    id="chat-history",
-                    style={
-                        "height": "400px",
-                        "overflowY": "auto",
-                        "border": "1px solid #ddd",
-                        "borderRadius": "5px",
-                        "padding": "10px",
-                        "marginBottom": "10px",
-                        "backgroundColor": "#f8f9fa"
-                    }
+                    "Ask questions about the brain changes during pregnancy, hormone levels, or any other aspects of the data shown on this page. The AI neurobot will analyze the 3D visualization of your brain and provide insights.",
+                    style={"fontSize": "0.9em", "fontFamily": S.text_fontfamily, "color": "#666"}
                 ),
                 # Input area
                 dbc.Row([
@@ -45,6 +32,19 @@ def gpt_chat_component():
                         dbc.Button("Ask ChatGPT", id="gpt-submit", color="primary", className="mb-3"),
                     ])
                 ]),
+                # Chat history container
+                html.Div(
+                    id="chat-history",
+                    style={
+                        "height": "200px",  # Reduced from 400px to 200px
+                        "overflowY": "auto",
+                        "border": "1px solid #ddd",
+                        "borderRadius": "5px",
+                        "padding": "10px",
+                        "marginBottom": "10px",
+                        "backgroundColor": "#f8f9fa"
+                    }
+                ),
                 # Store for chat history
                 dcc.Store(id="chat-store", data=[]),
             ])
