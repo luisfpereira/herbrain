@@ -1,5 +1,6 @@
 """Creates a Dash app where week/hormone sliders predict brain shape."""
 
+import logging
 import dash_bootstrap_components as dbc
 import numpy as np
 import polpo.preprocessing.dict as ppdict
@@ -53,11 +54,13 @@ def my_app(cfg, data="hipp"):
     import openai
     import os
     api_key_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "openai_api_key.txt")
+    print(f"API key path: {api_key_path}")
     try:
         with open(api_key_path, "r") as f:
             openai.api_key = f.read().strip()
+            os.environ["OPENAI_API_KEY"] = openai.api_key
     except FileNotFoundError:
-        print("Warning: openai_api_key.txt not found. GPT chat functionality will not work.")
+        logging.warning("File openai_api_key.txt not found. GPT chat functionality will not work.")
         openai.api_key = None
 
     hormones_ordering = ["estro", "prog", "lh"]
