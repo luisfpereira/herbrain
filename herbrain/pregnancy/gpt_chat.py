@@ -4,6 +4,10 @@ import dash_bootstrap_components as dbc
 from dash import html, Input, Output, State, callback, dcc, ctx
 import openai
 from polpo.dash.style import STYLE as S
+import base64
+import plotly.io as pio
+import plotly.graph_objects as go
+import io
 
 def gpt_chat_component():
     """Create a GPT chat component with message history and chat-like interface."""
@@ -77,10 +81,11 @@ def create_message_bubble(message, is_user=True):
      State("gestWeek-slider", "value"),  # Gestational week slider
      State("estro-slider", "value"),     # Estrogen slider
      State("prog-slider", "value"),      # Progesterone slider
-     State("lh-slider", "value")],       # LH slider
+     State("lh-slider", "value"),        # LH slider
+     State("mesh-plot", "figure")],      # Current mesh figure
     prevent_initial_call=True
 )
-def update_chat(n_clicks, question, chat_history, gest_week, estro, prog, lh):
+def update_chat(n_clicks, question, chat_history, gest_week, estro, prog, lh, figure):
     """Update the chat history when a new message is sent."""
     if not question:
         return chat_history, ""
@@ -96,17 +101,55 @@ def update_chat(n_clicks, question, chat_history, gest_week, estro, prog, lh):
 - Progesterone: {prog} ng/ml
 - LH: {lh} ng/ml
 
-Please use these values to provide context in your response."""
+Please analyze the attached 3D mesh visualization and use these hormone values to provide context in your response."""
+        
+        # Convert Plotly figure to image
+        if figure:
+            # Create a proper Plotly figure object from the dictionary
+            temp_fig = go.Figure(figure)
+            # Ensure the figure has the right size and layout
+            temp_fig.update_layout(
+                width=800,
+                height=600,
+                margin=dict(l=0, r=0, t=0, b=0)
+            )
+            # Convert to PNG image
+            img_bytes = pio.to_image(temp_fig, format="png")
+            # Convert to base64
+            img_base64 = base64.b64encode(img_bytes).decode('utf-8')
+        else:
+            img_base64 = None
+        
+        # Prepare messages for the API call
+        messages = [
+            {"role": "system", "content": "You are a neuroscientist specializing in the pregnancy and postpartum brain. You answer questions using short, precise sentences. Only respond to questions related to neuroscience of pregnancy, hormones, and motherhood, and women's brains. If a question is outside this scope, politely decline to answer."},
+            {"role": "system", "content": "You are a helpful assistant explaining brain changes during pregnancy. Focus on the relationship between hormones and brain structure."},
+            {"role": "system", "content": "Just above your chat box, you see the rendered 3D hippocampus of a brain of a pregnant woman—this is the image provided in your context. Be prepared to answer questions based on what you observe in this brain image."},
+            {"role": "system", "content": context}
+        ]
+        
+        # Add the image if available
+        if img_base64:
+            messages.append({
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": question},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/png;base64,{img_base64}"
+                        }
+                    }
+                ]
+            })
+        else:
+            messages.append({"role": "user", "content": question})
         
         # Create the chat completion
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",  # Using a faster model
-            messages=[
-                {"role": "system", "content": "You are a neuroscientist specializing in the pregnancy and postpartum brain. You answer questions using short, precise sentences. Only respond to questions related to neuroscience of pregnancy, hormones, and motherhood, and women's brains. If a question is outside this scope, politely decline to answer."},
-                {"role": "system", "content": "You are a helpful assistant explaining brain changes during pregnancy. Focus on the relationship between hormones and brain structure."},
-                {"role": "system", "content": context},
-                {"role": "user", "content": question}
-            ]
+            model="gpt-4o",  # Using GPT-4o-mini to handle mesh visualization
+            messages=messages,
+            max_tokens=500
         )
         
         # Get the response
