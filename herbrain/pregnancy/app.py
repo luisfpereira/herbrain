@@ -25,28 +25,23 @@ from polpo.models import DictMeshColorizer, MeshColorizer
 from polpo.plot.mesh import MeshesPlotter, MeshPlotter, StaticMeshPlotter
 from polpo.preprocessing import ListSqueeze
 from polpo.preprocessing.learning import DictsToXY, NestedDictsToXY
-from polpo.preprocessing.mri import (
-    LocalToTemplateTransform,
-)
 from polpo.sklearn.compose import PostTransformingEstimator
 
 import herbrain.pregnancy.page_content as page_content
 
 from .data import (
-    HippRegisteredMeshesLoader,
     HormonesCsvLoader,
     MaternalRegisteredMeshesLoader,
     MultipleMaternalMeshesLoader,
     NibImage2Mesh,
     PilotMriImageLoader,
-    ReferenceImageLoader,
     TemplateImageLoader,
 )
 from .models import MeshPCR
 from .page_content import ai_hormone_prediction, homepage, mri_page
 
 
-def my_app(cfg, data="hipp"):
+def my_app(cfg, data):
     style = cfg.style
     update_style(style)
 
@@ -79,15 +74,7 @@ def my_app(cfg, data="hipp"):
     template_image = TemplateImageLoader()()
 
     n_structs = 1
-    if data == "hipp":
-        registered_meshes = HippRegisteredMeshesLoader()()
-
-        reference_image = ReferenceImageLoader()()
-        affine_transform = LocalToTemplateTransform()(
-            (reference_image.affine, template_image.affine)
-        )
-
-    elif data == "multiple":
+    if data == "multiple":
         structs = [
             "BrStem",
             "L_Thal",
@@ -139,16 +126,15 @@ def my_app(cfg, data="hipp"):
         model=None, affine_transform=affine_transform, n_pipes=n_pipes
     )
 
-    if data in ("maternal", "multiple"):
-        Colorizer = MeshColorizer if data == "maternal" else DictMeshColorizer
+    Colorizer = DictMeshColorizer if data == "multiple" else MeshColorizer
 
-        week_colorizer = Colorizer(x_ref=np.asarray(0.5), delta_lim=np.asarray(15.0))
-        week_mesh_model = PostTransformingEstimator(week_mesh_model, week_colorizer)
+    week_colorizer = Colorizer(x_ref=np.asarray(0.5), delta_lim=np.asarray(15.0))
+    week_mesh_model = PostTransformingEstimator(week_mesh_model, week_colorizer)
 
-        hormones_colorizer = Colorizer(scaling_factor=50.0)
-        hormones_mesh_model = PostTransformingEstimator(
-            hormones_mesh_model, hormones_colorizer
-        )
+    hormones_colorizer = Colorizer(scaling_factor=50.0)
+    hormones_mesh_model = PostTransformingEstimator(
+        hormones_mesh_model, hormones_colorizer
+    )
 
     X, y = dicts_to_xy([hormones_gest_week, registered_meshes])
     week_mesh_model.fit(X, y)
