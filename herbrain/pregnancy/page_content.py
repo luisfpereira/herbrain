@@ -3,7 +3,8 @@
 import dash_bootstrap_components as dbc
 from dash import dcc, get_asset_url, html
 from polpo.dash.style import STYLE as S
-from .gpt_chat import gpt_chat_component
+
+from .gpt_chat import gpt_chat_component, set_openai_api_key
 
 SIDEBAR_STYLE = {
     "position": "fixed",
@@ -320,7 +321,7 @@ def mri_page(mri_explorer):
     ]
 
 
-def ai_hormone_prediction(mesh_explorer):
+def ai_hormone_prediction(mesh_explorer, gpt=False):
     """Return the content of the AI hormone prediction page."""
     banner = [
         dbc.Row(
@@ -356,6 +357,11 @@ def ai_hormone_prediction(mesh_explorer):
         ],
     )
 
+    gpt_component = []
+    if gpt:
+        if set_openai_api_key():
+            gpt_component = gpt_chat_component()
+
     contents_container = dbc.Container(
         [
             *banner,
@@ -383,11 +389,8 @@ def ai_hormone_prediction(mesh_explorer):
             ),
         ]
         + mesh_explorer.to_dash()
-        + [
-            html.Div(style={"height": S.space_between_sections}),
-            html.Hr(),
-            gpt_chat_component(),
-        ],
+        + [html.Div(style={"height": S.space_between_sections}), html.Hr()]
+        + gpt_component,
         fluid=True,
     )
 

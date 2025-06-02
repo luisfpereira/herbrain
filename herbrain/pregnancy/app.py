@@ -1,6 +1,5 @@
 """Creates a Dash app where week/hormone sliders predict brain shape."""
 
-import logging
 import dash_bootstrap_components as dbc
 import numpy as np
 import polpo.preprocessing.dict as ppdict
@@ -41,22 +40,9 @@ from .models import MeshPCR
 from .page_content import ai_hormone_prediction, homepage, mri_page
 
 
-def my_app(cfg, data):
+def my_app(cfg, data, gpt):
     style = cfg.style
     update_style(style)
-
-    # Set OpenAI API key from text file
-    import openai
-    import os
-    api_key_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "openai_api_key.txt")
-    print(f"API key path: {api_key_path}")
-    try:
-        with open(api_key_path, "r") as f:
-            openai.api_key = f.read().strip()
-            os.environ["OPENAI_API_KEY"] = openai.api_key
-    except FileNotFoundError:
-        logging.warning("File openai_api_key.txt not found. GPT chat functionality will not work.")
-        openai.api_key = None
 
     hormones_ordering = ["estro", "prog", "lh"]
 
@@ -260,6 +246,7 @@ def my_app(cfg, data):
             page=FunctionComponent(
                 ai_hormone_prediction,
                 mesh_explorer=mesh_explorer,
+                gpt=gpt,
             ),
         ),
     ]
@@ -275,7 +262,6 @@ def my_app(cfg, data):
 
     app.layout = page_content.app_layout(sidebar_elems, page_register)
 
-    
     app.title = cfg.app.title
 
     server_cfg = cfg.server

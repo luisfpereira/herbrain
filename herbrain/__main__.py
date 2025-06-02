@@ -29,6 +29,7 @@ def pregnancy_app(
     config_path: str = "config/pregnancy",
     config_name: str = "config",
     logging_level: int = 20,
+    gpt: bool = False,
 ):
     """Launch pregnancy app."""
     from herbrain.pregnancy.app import my_app
@@ -37,7 +38,13 @@ def pregnancy_app(
         overrides = []
 
     return _launch_app(
-        my_app, overrides, config_path, config_name, logging_level, data=data.value
+        my_app,
+        overrides,
+        config_path,
+        config_name,
+        logging_level,
+        data=data.value,
+        gpt=gpt,
     )
 
 
