@@ -24,7 +24,7 @@ def _launch_app(my_app, overrides, config_path, config_name, logging_level, **kw
 
 @app.command()
 def pregnancy_app(
-    data: PregnancyDataOptions = PregnancyDataOptions.maternal,
+    data: PregnancyDataOptions = PregnancyDataOptions.multiple,
     overrides: Optional[List[str]] = typer.Argument(None),
     config_path: str = "config/pregnancy",
     config_name: str = "config",
