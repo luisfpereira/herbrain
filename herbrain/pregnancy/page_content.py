@@ -360,7 +360,7 @@ def ai_hormone_prediction(mesh_explorer, gpt=False):
     gpt_component = []
     if gpt:
         if set_openai_api_key():
-            gpt_component = gpt_chat_component()
+            gpt_component = [gpt_chat_component()]
 
     contents_container = dbc.Container(
         [
