@@ -4,6 +4,8 @@ import dash_bootstrap_components as dbc
 from dash import dcc, get_asset_url, html
 from polpo.dash.style import STYLE as S
 
+from .gpt_chat import gpt_chat_component, set_openai_api_key
+
 SIDEBAR_STYLE = {
     "position": "fixed",
     "top": 0,
@@ -319,7 +321,7 @@ def mri_page(mri_explorer):
     ]
 
 
-def ai_hormone_prediction(mesh_explorer):
+def ai_hormone_prediction(mesh_explorer, gpt=False):
     """Return the content of the AI hormone prediction page."""
     banner = [
         dbc.Row(
@@ -355,16 +357,10 @@ def ai_hormone_prediction(mesh_explorer):
         ],
     )
 
-    acknowledgements_text = dbc.Row(
-        [
-            html.P(
-                [
-                    "Our AI was trained on data from the study: Pritschet, Taylor, Cossio, Santander, Grotzinger, Faskowitz, Handwerker, Layher, Chrastil, Jacobs. Neuroanatomical changes observed over the course of a human pregnancy. (2024)",
-                ],
-                style={"fontSize": S.text_fontsize, "fontFamily": S.text_fontfamily},
-            ),
-        ],
-    )
+    gpt_component = []
+    if gpt:
+        if set_openai_api_key():
+            gpt_component = [gpt_chat_component()]
 
     contents_container = dbc.Container(
         [
@@ -393,13 +389,8 @@ def ai_hormone_prediction(mesh_explorer):
             ),
         ]
         + mesh_explorer.to_dash()
-        + [
-            html.Div(style={"height": S.space_between_sections}),
-            html.Hr(),
-            acknowledgements_title(),
-            html.Div(style={"height": S.space_between_title_and_content}),
-            acknowledgements_text,
-        ],
+        + [html.Div(style={"height": S.space_between_sections}), html.Hr()]
+        + gpt_component,
         fluid=True,
     )
 
