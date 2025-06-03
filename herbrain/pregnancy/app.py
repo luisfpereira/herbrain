@@ -1,5 +1,8 @@
 """Creates a Dash app where week/hormone sliders predict brain shape."""
 
+import os
+import socket
+
 import dash_bootstrap_components as dbc
 import numpy as np
 import polpo.preprocessing.dict as ppdict
@@ -44,10 +47,21 @@ def my_app(cfg, data):
     style = cfg.style
     update_style(style)
 
+    # TODO: homogenize
+    data_dir = os.environ.get("HERBRAIN_DATA_DIR", None)
+    if data_dir is None:
+        in_frank = socket.gethostname() == "frank"
+        data_dir = "/home/data/" if in_frank else "~/.herbrain/data/"
+
+    pregnancy_data_dir = os.path.join(data_dir, "pregnancy")
+    maternal_data_dir = os.path.join(data_dir, "maternal")
+
     hormones_ordering = ["estro", "prog", "lh"]
 
-    mri_data = PilotMriImageLoader(debug=cfg.server.debug)()
-    hormones_df = HormonesCsvLoader()()
+    mri_data = PilotMriImageLoader(
+        data_dir=pregnancy_data_dir, debug=cfg.server.debug
+    )()
+    hormones_df = HormonesCsvLoader(data_dir=maternal_data_dir)()
 
     hormones_for_pred = ppd.ColumnsToDict(hormones_ordering)(hormones_df)
     hormones_gest_week = ppd.ColumnToDict("gestWeek")(hormones_df)
@@ -57,7 +71,7 @@ def my_app(cfg, data):
     else:
         dicts_to_xy = DictsToXY()
 
-    template_image = TemplateImageLoader()()
+    template_image = TemplateImageLoader(data_dir=pregnancy_data_dir)()
 
     n_structs = 1
     if data == "multiple":
@@ -82,7 +96,9 @@ def my_app(cfg, data):
             structs = structs[2:]
 
         n_structs = len(structs)
-        registered_meshes = MultipleMaternalMeshesLoader(max_iterations=500)(structs)
+        registered_meshes = MultipleMaternalMeshesLoader(
+            data_dir=maternal_data_dir, max_iterations=500
+        )(structs)
         affine_transform = np.array(
             [
                 [1.0, 0.0, 0.0, 25.0],
@@ -93,7 +109,9 @@ def my_app(cfg, data):
         )
 
     else:
-        registered_meshes = MaternalRegisteredMeshesLoader(max_iterations=500)()
+        registered_meshes = MaternalRegisteredMeshesLoader(
+            data_dir=maternal_data_dir, max_iterations=500
+        )()
         affine_transform = np.array(
             [
                 [1.0, 0.0, 0.0, 25.0],
