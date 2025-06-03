@@ -31,7 +31,7 @@ from polpo.preprocessing.mri import (
 class PilotMriImageLoader(Pipeline):
     """Load, sort, truncate, and parse MRI images."""
 
-    def __init__(self, debug=False):
+    def __init__(self, debug=False, data_dir=None):
         if debug:
             value = 2
             n_jobs = 1
@@ -43,7 +43,7 @@ class PilotMriImageLoader(Pipeline):
 
         super().__init__(
             steps=[
-                PregnancyPilotMriLoader(as_dict=False),
+                PregnancyPilotMriLoader(data_dir=data_dir, as_dict=False),
                 Sorter(),
                 Truncater(value=value),
                 Map(n_jobs=n_jobs, verbose=verbose, step=MriImageLoader()),
@@ -54,10 +54,10 @@ class PilotMriImageLoader(Pipeline):
 class HormonesCsvLoader(Pipeline):
     """Load maternal hormone data and drop repeated row."""
 
-    def __init__(self):
+    def __init__(self, data_dir=None):
         super().__init__(
             steps=[
-                DenseMaternalCsvDataLoader(pilot=True),
+                DenseMaternalCsvDataLoader(data_dir=data_dir, pilot=True),
                 ppd.Drop(labels=27),
             ]
         )
@@ -66,10 +66,10 @@ class HormonesCsvLoader(Pipeline):
 class TemplateImageLoader(Pipeline):
     """Load and parse a single MRI image as a template with affine."""
 
-    def __init__(self):
+    def __init__(self, data_dir=None):
         super().__init__(
             steps=[
-                PregnancyPilotMriLoader(subset=[1]),
+                PregnancyPilotMriLoader(data_dir=data_dir, subset=[1]),
                 ListSqueeze(),
                 MriImageLoader(as_nib=True),
             ]
@@ -102,11 +102,13 @@ class MaternalRegisteredMeshesLoader(Pipeline):
         Maximum number of iterations for alignment.
     """
 
-    def __init__(self, max_iterations=500):
+    def __init__(self, data_dir=None, max_iterations=500):
         # TODO: allow template choice?
         super().__init__(
             steps=[
-                DenseMaternalMeshLoader(subject_id=None, as_dict=True),
+                DenseMaternalMeshLoader(
+                    data_dir=data_dir, subject_id=None, as_dict=True
+                ),
                 ppdict.DictMap(step=PvReader()),
                 PartiallyInitializedStep(
                     Step=lambda target: ppdict.DictMap(
@@ -135,7 +137,7 @@ class MultipleMaternalMeshesLoader(Pipeline):
 
     # TODO: fix docstrings
 
-    def __init__(self, max_iterations=500):
+    def __init__(self, data_dir=None, max_iterations=500):
         super().__init__(
             steps=[
                 ppdict.HashWithIncoming(
@@ -144,6 +146,7 @@ class MultipleMaternalMeshesLoader(Pipeline):
                             steps=[
                                 PartiallyInitializedStep(
                                     Step=DenseMaternalMeshLoader,
+                                    data_dir=data_dir,
                                     pass_data=False,
                                     _struct=lambda name: name.split("_")[-1],
                                     _left=lambda name: name.split("_")[0] == "L",
