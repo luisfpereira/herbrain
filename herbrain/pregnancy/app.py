@@ -61,7 +61,9 @@ def my_app(cfg, data, gpt):
     mri_data = PilotMriImageLoader(
         data_dir=pregnancy_data_dir, debug=cfg.server.debug
     )()
-    hormones_df = HormonesCsvLoader(data_dir=maternal_data_dir)()
+    hormones_df = HormonesCsvLoader(
+        data_dir=pregnancy_data_dir  # TODO: update when other subjects
+    )()
 
     hormones_for_pred = ppd.ColumnsToDict(hormones_ordering)(hormones_df)
     hormones_gest_week = ppd.ColumnToDict("gestWeek")(hormones_df)
