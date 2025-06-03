@@ -43,7 +43,7 @@ from .models import MeshPCR
 from .page_content import ai_hormone_prediction, homepage, mri_page
 
 
-def my_app(cfg, data):
+def my_app(cfg, data, gpt):
     style = cfg.style
     update_style(style)
 
@@ -61,7 +61,9 @@ def my_app(cfg, data):
     mri_data = PilotMriImageLoader(
         data_dir=pregnancy_data_dir, debug=cfg.server.debug
     )()
-    hormones_df = HormonesCsvLoader(data_dir=maternal_data_dir)()
+    hormones_df = HormonesCsvLoader(
+        data_dir=pregnancy_data_dir  # TODO: update when other subjects
+    )()
 
     hormones_for_pred = ppd.ColumnsToDict(hormones_ordering)(hormones_df)
     hormones_gest_week = ppd.ColumnToDict("gestWeek")(hormones_df)
@@ -74,6 +76,14 @@ def my_app(cfg, data):
     template_image = TemplateImageLoader(data_dir=pregnancy_data_dir)()
 
     n_structs = 1
+    affine_transform = np.array(
+        [
+            [1.0, 0.0, 0.0, 25.0],
+            [0.0, 1.0, 0.0, 28.0],
+            [0.0, 0.0, 1.0, 23.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ]
+    )
     if data == "multiple":
         structs = [
             "BrStem",
@@ -99,27 +109,11 @@ def my_app(cfg, data):
         registered_meshes = MultipleMaternalMeshesLoader(
             data_dir=maternal_data_dir, max_iterations=500
         )(structs)
-        affine_transform = np.array(
-            [
-                [1.0, 0.0, 0.0, 25.0],
-                [0.0, 1.0, 0.0, 28.0],
-                [0.0, 0.0, 1.0, 23.0],
-                [0.0, 0.0, 0.0, 1.0],
-            ]
-        )
 
     else:
         registered_meshes = MaternalRegisteredMeshesLoader(
             data_dir=maternal_data_dir, max_iterations=500
         )()
-        affine_transform = np.array(
-            [
-                [1.0, 0.0, 0.0, 25.0],
-                [0.0, 1.0, 0.0, 28.0],
-                [0.0, 0.0, 1.0, 23.0],
-                [0.0, 0.0, 0.0, 1.0],
-            ]
-        )
 
     n_pipes = n_structs if data == "multiple" else None
     week_mesh_model = MeshPCR(
@@ -206,12 +200,15 @@ def my_app(cfg, data):
         postproc_pred = ppdict.DictMap(step=ListSqueeze()) + ppdict.DictToValuesList()
 
     hormone_label_style = {"fontSize": 30, "display": "block"}
+    template_visibility = True
     mesh_explorer = MultiModelsMeshExplorer(
         graph=Graph(
             id_="mesh-plot",
             plotter=MeshesPlotter(
                 plotters=[MeshPlotter() for _ in range(n_structs)],
-                overlay_plotter=StaticMeshPlotter(mesh=template_mesh),
+                overlay_plotter=StaticMeshPlotter(
+                    mesh=template_mesh, visible=template_visibility
+                ),
                 bounds=None,  # TODO: check need
                 overlay_bounds=None,  # TODO: check need
             ),
@@ -227,7 +224,7 @@ def my_app(cfg, data):
                 ],
             ),
         ),
-        checkbox_labels=((-1, "Show Full Brain", False),),
+        checkbox_labels=((-1, "Show Full Brain", template_visibility),),
         button_label=" Click Here to Toggle Between Gestational Week vs Hormone Value Prediction",
         postproc_pred=postproc_pred,
     )
@@ -264,6 +261,7 @@ def my_app(cfg, data):
             page=FunctionComponent(
                 ai_hormone_prediction,
                 mesh_explorer=mesh_explorer,
+                gpt=gpt,
             ),
         ),
     ]
@@ -278,6 +276,7 @@ def my_app(cfg, data):
     page_register = PageRegister()
 
     app.layout = page_content.app_layout(sidebar_elems, page_register)
+
     app.title = cfg.app.title
 
     server_cfg = cfg.server

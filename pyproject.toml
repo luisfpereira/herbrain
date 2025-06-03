@@ -34,6 +34,8 @@ app = [
     "scikit-learn",
     "polpo[dash,mri]@git+https://github.com/geometric-intelligence/polpo.git@main",
     "pyvista",
+    "openai",
+    "kaleido",
 ]
 app-menstrual = ["herbrain[app]", "paramiko", "scp"]
 lddmm = [
